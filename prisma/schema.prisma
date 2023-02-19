@@ -1,0 +1,231 @@
+generator client {
+  provider = "prisma-client-js"
+ // engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user { // Пользователи
+  id Int @id @default(autoincrement())
+  email String @unique
+  name String?
+  password String
+  salt String?
+  role String // нужно присваивать user по умолчанию
+  // date monitor
+  create_date DateTime @db.Timestamptz
+  changed_date DateTime @updatedAt @db.Timestamptz
+  // used in
+  registrator registrator[]
+}
+
+model product { // Товары
+    id Int @id @default(autoincrement())
+    id_1c String
+    name String
+    name_1c String?
+    artikul String
+    // foreign keys
+    product_group product_group @relation(fields: [product_group_id], references: [id])
+    product_group_id Int
+    product_vid product_vid @relation(fields: [product_vid_id], references: [id])
+    product_vid_id Int
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    brend brend? @relation(fields: [brend_id], references: [id])
+    brend_id Int?
+    country country? @relation(fields: [country_id], references: [id])
+    country_id Int?
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+    // used in
+    price_registry price_registry[] //virtual
+    qnt_registry qnt_registry[] //virtual
+    image_registry image_registry[] //virtual
+}
+
+model product_group { // ТоварнаяГруппа - Зима тяжелая (-5 -30)
+    id Int @id @default(autoincrement())
+    id_1c String
+    name_1c String
+    // foreign keys
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+    // used in
+    product product[] //virtual
+}
+
+model product_vid { // ВидНоменклатуры - Обувь детская
+    id Int @id @default(autoincrement())
+    id_1c String
+    name_1c String
+    // foreign keys
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+    // used in
+    product product[] //virtual
+}
+
+model size { // размеры - из реквизита Размер2 - 21
+    id Int @id @default(autoincrement())
+    id_1c String
+    name_1c String    
+    // foreign keys
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+    // used in
+    price_registry price_registry[]
+    qnt_registry qnt_registry[]
+}
+
+model store { // склады в 1С, они же магазины здесь 
+    id Int @id @default(autoincrement())
+    id_1c String
+    name_1c String    
+    address String
+    link_2gis String
+    phone String
+    // foreign keys
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+}
+
+model price_vid { // типы цен - Розничная (РФ-Китай) до 3500
+    id Int @id @default(autoincrement())
+    id_1c String
+    name_1c String  
+    active Boolean // использовать ли этот пункт как розничную
+    active_change_date DateTime @db.Timestamptz 
+    // foreign keys
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+    // used in
+    price_registry price_registry[]
+}
+
+model brend { // справочник брендов
+    id Int @id @default(autoincrement())
+    id_1c String
+    name_1c String  
+    // foreign keys
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+    // used in
+    product product[]
+}
+
+model country { // справочник страна производства
+    id Int @id @default(autoincrement())
+    id_1c String
+    name_1c String
+    // foreign keys
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+    // used in
+    product product[]    
+}
+
+
+model price_registry { // регистр цен
+    id Int @id @default(autoincrement())
+    sum Decimal
+    operation_date DateTime @db.Timestamptz
+    // foreign keys
+    product product @relation(fields: [product_id], references: [id])
+    product_id Int
+    price_vid price_vid @relation(fields: [price_vid_id], references: [id])
+    price_vid_id Int
+    size size @relation(fields: [size_id], references: [id])
+    size_id Int
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+}
+
+model qnt_registry { // регистр остатков
+    id Int @id @default(autoincrement())
+    qnt Decimal
+    operation_date DateTime @db.Timestamptz
+    // foreign keys
+    product product @relation(fields: [product_id], references: [id])
+    product_id Int
+    size size @relation(fields: [size_id], references: [id])
+    size_id Int
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+}
+
+model image_registry { // регистр изображений товаров
+    id Int @id @default(autoincrement())
+    size String // разрешение по горизонтали
+    path String // путь до файла
+    operation_date DateTime @db.Timestamptz    
+    main Boolean  // использовать как основное изображение для карточки продукта
+    main_change_date DateTime @db.Timestamptz    
+    active Boolean // использовать ли этот пункт для отображения или отключить
+    active_change_date DateTime @db.Timestamptz    
+    // foreign keys
+    product product @relation(fields: [product_id], references: [id])
+    product_id Int
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+}
+
+model registrator {
+    id Int @id @default(autoincrement())
+    operation_date DateTime @db.Timestamptz
+    name_folder String
+    name_file String
+    // foreign keys
+    user user @relation(fields: [user_id], references: [id])
+    user_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+    // used in 
+    qnt_registry qnt_registry[]
+    price_registry price_registry[]
+    product product[]
+    product_group product_group[]
+    product_vid product_vid[]
+    price_vid price_vid[]
+    store store[]
+    size size[]
+    brend brend[]
+    country country[]
+    image_registry image_registry[]
+}
+

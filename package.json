@@ -1,0 +1,24 @@
+{
+  "name": "cipo-site-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlmasNurbayev/cipo-site-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlmasNurbayev/cipo-site-server/issues"
+  },
+  "homepage": "https://github.com/AlmasNurbayev/cipo-site-server#readme",
+  "dependencies": {
+    "@prisma/client": "^4.10.1",
+    "pino": "^8.10.0",
+    "prisma": "^4.10.1"
+  }
+}
