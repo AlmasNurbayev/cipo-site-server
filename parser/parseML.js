@@ -9,8 +9,8 @@ import _ from 'lodash';
 import { findProperties } from './findProperties.js';
 import { findRegistrator } from './findRegistrator.js';
 import { findVid } from './findVid.js';
-
 import { logger } from '../utils/logger.js';
+import { recordDB } from './recordDB.js';
 
 dotenv.config();
 
@@ -49,17 +49,23 @@ async function parseImport(path, file, user_id) {
     let obj = JSON.parse(result);
     fs.writeFile(path + "/import0_1.json", result);
 
+    logger.info('utils/parseML.js - parseImport ' + ' - obj_registrator');
     const obj_registrator = findRegistrator(obj, user_id, path, file);
     console.log(obj_registrator);
 
+    logger.info('utils/parseML.js - parseImport ' + ' - obj_product_group');
     const obj_product_group = findProperties(obj, 'Свойства', 'ТоварнаяГруппа');
     console.log(obj_product_group);
             
+    logger.info('utils/parseML.js - parseImport ' + ' - obj_product_vid');
     const obj_product_vid = findVid(obj, 'Классификатор', 'Группы');
     console.log(obj_product_vid);
 
-    const obj_product = [];
+    logger.info('utils/parseML.js - parseImport ' + ' record to DB - registrator');
+    recordDB('object', 'registrator', obj_registrator);
     
+    const obj_product = [];
+
     
 }
 
