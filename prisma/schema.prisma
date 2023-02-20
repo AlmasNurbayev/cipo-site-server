@@ -24,10 +24,16 @@ model user { // Пользователи
 
 model product { // Товары
     id Int @id @default(autoincrement())
-    id_1c String
+    id_1c String @unique // <Ид>17afd8c7-fe09-11ec-9b62-50ebf624c538</Ид>
     name String
-    name_1c String?
-    artikul String
+    name_1c String? //<Наименование>Kiddy Туфли зеленый 1006-773</Наименование>
+    base_ed String // <БазоваяЕдиница Код="796" НаименованиеПолное="Штука" МеждународноеСокращение="PCE">
+    // descriptions fields
+    artikul String  // <Артикул>1006-773</Артикул>
+    material_up String?
+    material_inside String?
+    material_podoshva String?
+    description String? // общее описание, например "густой мех, маломерят"
     // foreign keys
     product_group product_group @relation(fields: [product_group_id], references: [id])
     product_group_id Int
@@ -48,9 +54,22 @@ model product { // Товары
     image_registry image_registry[] //virtual
 }
 
+model product_desc_mapping { // маппинг дополнительных сведений между 1С и таблицей Product, Материал вверх = material_up
+    id Int @id @default(autoincrement())
+    id_1c String @unique // id в выгрузке import
+    name_1c String
+    field String // сопоставимое поле в таблице Product, например material_up
+    // foreign keys
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+}
+
 model product_group { // ТоварнаяГруппа - Зима тяжелая (-5 -30)
     id Int @id @default(autoincrement())
-    id_1c String
+    id_1c String @unique
     name_1c String
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
@@ -64,7 +83,7 @@ model product_group { // ТоварнаяГруппа - Зима тяжелая 
 
 model product_vid { // ВидНоменклатуры - Обувь детская
     id Int @id @default(autoincrement())
-    id_1c String
+    id_1c String @unique
     name_1c String
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
@@ -76,9 +95,9 @@ model product_vid { // ВидНоменклатуры - Обувь детска�
     product product[] //virtual
 }
 
-model size { // размеры - из реквизита Размер2 - 21
+model size { // размеры - из <ХарактеристикаТовара> <Ид>a001d8e3-a3b3-11ed-b0d2-50ebf624c538</Ид>
     id Int @id @default(autoincrement())
-    id_1c String
+    id_1c String @unique
     name_1c String    
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
@@ -93,11 +112,12 @@ model size { // размеры - из реквизита Размер2 - 21
 
 model store { // склады в 1С, они же магазины здесь 
     id Int @id @default(autoincrement())
-    id_1c String
+    id_1c String @unique
     name_1c String    
-    address String
-    link_2gis String
-    phone String
+    address String // заполнять самим
+    link_2gis String // заполнять самим - URL
+    phone String // заполнять самим
+    city String // заполнять самим
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
     registrator_id Int
@@ -108,7 +128,7 @@ model store { // склады в 1С, они же магазины здесь
 
 model price_vid { // типы цен - Розничная (РФ-Китай) до 3500
     id Int @id @default(autoincrement())
-    id_1c String
+    id_1c String @unique
     name_1c String  
     active Boolean // использовать ли этот пункт как розничную
     active_change_date DateTime @db.Timestamptz 
@@ -124,7 +144,7 @@ model price_vid { // типы цен - Розничная (РФ-Китай) до
 
 model brend { // справочник брендов
     id Int @id @default(autoincrement())
-    id_1c String
+    id_1c String @unique
     name_1c String  
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
@@ -138,7 +158,7 @@ model brend { // справочник брендов
 
 model country { // справочник страна производства
     id Int @id @default(autoincrement())
-    id_1c String
+    id_1c String @unique
     name_1c String
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
@@ -187,7 +207,9 @@ model qnt_registry { // регистр остатков
 
 model image_registry { // регистр изображений товаров
     id Int @id @default(autoincrement())
-    size String // разрешение по горизонтали
+    resolution String // разрешение по горизонтали
+    file String // имя файла - нужно для проверки дублей при загрузке, одинаковое имя и размер файла - не загружаем повторно
+    size String // размер файла в байтах
     path String // путь до файла
     operation_date DateTime @db.Timestamptz    
     main Boolean  // использовать как основное изображение для карточки продукта
@@ -207,8 +229,16 @@ model image_registry { // регистр изображений товаров
 model registrator {
     id Int @id @default(autoincrement())
     operation_date DateTime @db.Timestamptz
-    name_folder String
-    name_file String
+    id_class String // id классификатора  <Классификатор><Ид>5057f421-546a-4373-a2d7-86f9d3951f15</Ид>
+    name_class String //		<Наименование>Классификатор (Каталог товаров 5057F421)</Наименование>
+    id_catalog String // id каталога <Каталог СодержитТолькоИзменения="false"><Ид>5057f421-546a-4373-a2d7-86f9d3951f15</Ид>
+    name_catalog String // <Наименование>Каталог товаров 5057F421</Наименование>
+    only_change Boolean // СодержитТолькоИзменения	:	false
+    name_folder String // папка откуда загружено, нужно предварительно скопировать в папку с датой в имени
+    name_file String // полный путь к файлу, откуда загружен
+    ver_schema String // ВерсияСхемы="2.07"
+    date_schema DateTime @db.Timestamptz // ДатаФормирования="2023-02-20T09:58:38">
+    
     // foreign keys
     user user @relation(fields: [user_id], references: [id])
     user_id Int
@@ -227,5 +257,6 @@ model registrator {
     brend brend[]
     country country[]
     image_registry image_registry[]
+    product_desc_mapping product_desc_mapping[]
 }
 
