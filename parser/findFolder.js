@@ -9,7 +9,7 @@ import { findNestedObj } from "./findProperties.js";
  * @param {string} prop_name - название узла конкретная Группа, который надо развернуть в массив
  * @return {Array} возвращаем элементы справочника Свойства как  массив с объектами, поля id_1c, name_1c 
  */
-export function findVid(obj, prop_root, name) {
+export function findFolder(obj, prop_root, name) {
     const arr = [];
     const tree0 = findNestedObj(obj, 'name', prop_root);
 

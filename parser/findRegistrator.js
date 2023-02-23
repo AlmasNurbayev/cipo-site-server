@@ -1,5 +1,15 @@
 import { formatISO } from 'date-fns';
 
+
+/**
+ * парсим дерево import0_1.xml в поисках корневых реквизитов классификатора, каталога. Нужно для таблицы БД 
+ * @function
+ * @param {string} obj - полный объект
+ * @param {string} user_id - id пользователя
+ * @param {string} path - путь до папки с XML
+ * @param {string} file - полное имя файла
+ * @return {object} возвращаем объект со значениями
+ */
 export function findRegistrator(obj, user_id, path, file) {
     const obj_registrator = {};
     obj_registrator.operation_date = formatISO(Date.now(), { representation: 'complete' });
