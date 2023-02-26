@@ -1,3 +1,4 @@
+'useStrict';
 import { findNestedObj } from "./findProperties.js";
 
 

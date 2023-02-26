@@ -1,3 +1,5 @@
+'useStrict';
+
 import { findDB } from "./findDB.js";
 import { formatISO } from 'date-fns';
 import { logger, writeLog } from "../utils/logger.js";

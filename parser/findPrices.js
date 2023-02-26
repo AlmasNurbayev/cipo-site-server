@@ -1,3 +1,5 @@
+'useStrict';
+
 import { findNestedObj } from "./findProperties.js";
 import { formatISO } from 'date-fns';
 

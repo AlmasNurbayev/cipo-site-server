@@ -127,9 +127,7 @@ async function parseOffers(path, file, user_id) {
     await recordDB('array', 'store', obj_stores, res_record.registrator.id);
     //await recordDB('array', 'price_vid', obj_prices, res_record.registrator.id);
     console.log(obj_stores);
-    
 }
-
 
 async function main(user_id) {
     logger.info('parser/parseML.js - main ' + 'begin ');

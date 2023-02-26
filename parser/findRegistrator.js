@@ -1,3 +1,5 @@
+'useStrict';
+
 import { formatISO } from 'date-fns';
 
 
