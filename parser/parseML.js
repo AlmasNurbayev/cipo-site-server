@@ -64,14 +64,14 @@ async function parseImport(path, file, user_id) {
 
     logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
     const res_record = {};
-    // res_record.registrator = await recordDB('object', 'registrator', obj_registrator);
-    // console.log(res_record.registrator);
-    // await recordDB('array', 'product_group', obj_product_group, res_record.registrator.id);
-    // await recordDB('array', 'product_folder', obj_product_folder, res_record.registrator.id);
+    res_record.registrator = await recordDB('object', 'registrator', obj_registrator);
+    console.log(res_record.registrator);
+    await recordDB('array', 'product_group', obj_product_group, res_record.registrator.id);
+    await recordDB('array', 'product_folder', obj_product_folder, res_record.registrator.id);
     
     //const obj_product = [];
     logger.info('parser/parseML.js - parseImport ' + ' - obj_product');
-    const obj_product = await findProduct(obj, path);
+    const obj_product = await findProduct(obj, path, res_record.registrator.id);
 
     
 }

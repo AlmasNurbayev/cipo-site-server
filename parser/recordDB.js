@@ -8,7 +8,7 @@ export async function recordDB(type, table, obj, registratorID) {
     const currentDate = formatISO(Date.now(), { representation: 'complete' });
 
     if (type === 'object') {
-        console.log(obj);
+        //console.log(obj);
         obj.create_date = currentDate;
         try {
             const res = await prismaI[table].create({
