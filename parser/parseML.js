@@ -9,9 +9,13 @@ import _ from 'lodash';
 import { findProperties } from './findProperties.js';
 import { findRegistrator } from './findRegistrator.js';
 import { findFolder } from './findFolder.js';
-import { logger } from '../utils/logger.js';
+import { logger, writeLog } from '../utils/logger.js';
 import { recordDB } from './recordDB.js';
 import { findProduct } from './findProduct.js';
+import { findDB } from './findDB.js';
+import { findImages } from './findImages.js';
+import { findPrices } from './findPrices.js';
+
 
 dotenv.config();
 
@@ -37,11 +41,11 @@ async function moveUpload(oldPath) {
 }
 
 /**
- * парсим import0_1.xml и возвращаем объект
+ * парсим import0_1.xml и записываем все в базу
  * @function
  * @param {string} path - путь до файла без имени файла
  * @param {string} file - полный путь до файла
- * @return {object | undefined} возвращаем объект с данными или undefned если не получилось
+ * @param {number} user_id - id юзера, под которым пишется регистратор 
  */
 async function parseImport(path, file, user_id) {
     logger.info('parser/parseML.js - parseImport ' + 'begin ' + file);
@@ -52,30 +56,79 @@ async function parseImport(path, file, user_id) {
 
     logger.info('parser/parseML.js - parseImport ' + ' - obj_registrator');
     const obj_registrator = findRegistrator(obj, user_id, path, file);
-    console.log(obj_registrator);
-
-    logger.info('parser/parseML.js - parseImport ' + ' - obj_product_group');
-    const obj_product_group = findProperties(obj, 'Свойства', 'ТоварнаяГруппа');
-    console.log(obj_product_group);
-            
-    logger.info('parser/parseML.js - parseImport ' + ' - obj_product_vid');
-    const obj_product_folder = findFolder(obj, 'Классификатор', 'Группы');
-    console.log(obj_product_folder);
-
+    //console.log(obj_registrator);
     logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
     const res_record = {};
     res_record.registrator = await recordDB('object', 'registrator', obj_registrator);
-    console.log(res_record.registrator);
+    //console.log(res_record.registrator);
+
+
+    logger.info('parser/parseML.js - parseImport ' + ' - obj_product_group');
+    const obj_product_group = findProperties(obj, 'Свойства', 'ТоварнаяГруппа');
     await recordDB('array', 'product_group', obj_product_group, res_record.registrator.id);
+    //console.log(obj_product_group);
+            
+    logger.info('parser/parseML.js - parseImport ' + ' - obj_product_vid');
+    const obj_product_folder = findFolder(obj, 'Классификатор', 'Группы');
     await recordDB('array', 'product_folder', obj_product_folder, res_record.registrator.id);
-    
-    //const obj_product = [];
+    //console.log(obj_product_folder);
+
+    // парсим и пишем таблицу товаров
     logger.info('parser/parseML.js - parseImport ' + ' - obj_product');
     const obj_product = await findProduct(obj, path, res_record.registrator.id);
+    writeLog('products_parsing.txt',JSON.stringify(obj_product));
+    const obj_product_without_images = JSON.parse(JSON.stringify(obj_product)); // создаем копию массива товаров и убираем картинки, т.к. их нет в таблице product
+    obj_product_without_images.forEach(element => {
+       delete element.images;    
+    });
+    // const obj_product_without_images = obj_product.map(item =>{
+    //     delete item.images;    
+    //     return item;
+    // }
+    // );
 
-    
+    const res_record_product = await recordDB('array', 'product', obj_product_without_images, res_record.registrator.id);
+    writeLog('products_record.txt',JSON.stringify(res_record_product));
+
+    // создаем объект для таблицы картинок и пишем в БД 
+    const obj_images = await findImages(obj_product, res_record.registrator.id);
+    const res_record_images = await recordDB('array', 'image_registry', obj_images, res_record.registrator.id);
 }
 
+/**
+ * парсим offers0_1.xml и записываем в базу
+ * @function
+ * @param {string} path - путь до файла без имени файла
+ * @param {string} file - полный путь до файла
+ * @param {number} user_id - id юзера, под которым пишется регистратор
+ */
+async function parseOffers(path, file, user_id) {
+    logger.info('parser/parseML.js - parseOffers ' + 'begin ' + file);
+    const xml = await fs.readFile(file);
+    let result = convert.xml2json(xml);
+    let obj = JSON.parse(result);
+    fs.writeFile(path + "/offers0_1.json", result);
+
+    logger.info('parser/parseML.js - parseOffers ' + ' - obj_registrator');
+    const obj_registrator = findRegistrator(obj, user_id, path, file);
+    //console.log(obj_registrator);
+
+    logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
+    const res_record = {};
+    res_record.registrator = await recordDB('object', 'registrator', obj_registrator);    
+
+    logger.info('parser/parseML.js - parseOffers ' + ' - prices');
+    const obj_prices = findPrices(obj, 'ПакетПредложений', 'ТипыЦен', res_record.registrator.id);
+    await recordDB('array', 'price_vid', obj_prices, res_record.registrator.id);
+    //console.log(obj_prices);
+
+    logger.info('parser/parseML.js - parseOffers ' + ' - stores');
+    const obj_stores = findFolder(obj, 'ПакетПредложений', 'Склады', res_record.registrator.id);
+    await recordDB('array', 'store', obj_stores, res_record.registrator.id);
+    //await recordDB('array', 'price_vid', obj_prices, res_record.registrator.id);
+    console.log(obj_stores);
+    
+}
 
 
 async function main(user_id) {
@@ -89,6 +142,7 @@ async function main(user_id) {
 }
  
 parseImport('uploads/webdata','uploads/webdata/import0_1.xml',4);
+parseOffers('uploads/webdata','uploads/webdata/offers0_1.xml',4);
 
 
 

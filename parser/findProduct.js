@@ -2,8 +2,7 @@ import { findNestedObj } from "./findProperties.js";
 import { findDB } from "./findDB.js";
 import { formatISO } from 'date-fns';
 import fs from 'fs';
-import { logger } from "../utils/logger.js";
-import { log } from "console";
+import { logger, writeLog } from "../utils/logger.js";
 import { recordDB } from "./recordDB.js";
 
 
@@ -23,9 +22,9 @@ export async function findProduct(obj, currentPath, registrator_id) {
     const product_group_all = await findDB('product_group', '', '', '');
     const product_desc_mapping_all = await findDB('product_desc_mapping', '', '', '');
 
-    console.table(product_group_all);
-    console.table(product_desc_mapping_all);
-    console.table(product_vid_all);
+    // console.table(product_group_all);
+    // console.table(product_desc_mapping_all);
+    // console.table(product_vid_all);
 
 
     const tree_properties = (findNestedObj(obj, 'name', 'Товары'));
@@ -102,14 +101,13 @@ export async function findProduct(obj, currentPath, registrator_id) {
                     try { // пытаемся получить размер в синхронном режиме
                         let stat = fs.statSync(obJ_image.file);
                         obJ_image.size = stat.size;
-                        //console.log(stat);
                     } catch (error) {
                         logger.error('parser/findProduct.js - file size measure ' + obJ_image.file + ' - ' + error.stack)
                     }
 
                     obJ_image.main_change_date = currentDate;
                     obJ_image.active = true; // Boolean // использовать ли этот пункт для отображения или отключить
-                    obJ_image.active_change_date = currentDate; // DateTime @db.Timestamptz                            
+                    obJ_image.active_change_date = currentDate; // DateTime @db.Timestamptz    
                     images.push(obJ_image);
                     //console.log(obJ_image);
                 }
@@ -126,7 +124,7 @@ export async function findProduct(obj, currentPath, registrator_id) {
                 }
                 if (element_2.name === 'ЗначенияРеквизитов') {
                     if (element_2.elements) {
-                        const res_rc = await findProductRc(element_2.elements, registrator_id); // декомпозируем поиск Свойств товара в отдельную функцию
+                        const res_rc = await findProductRc(element_2.elements, registrator_id); // декомпозируем поиск Реквизитов товара в отдельную функцию
                         if ('product_vid_id' in res_rc) {
                             product_vid_id = res_rc.product_vid_id;
                         }
@@ -138,6 +136,7 @@ export async function findProduct(obj, currentPath, registrator_id) {
             arr.push({
                 artikul: artikul,
                 name_1c: name_1c,
+                name: name_1c,
                 id_1c: id_1c,
                 base_ed: base_ed,
                 product_folder_id: product_folder_id,
@@ -155,7 +154,8 @@ export async function findProduct(obj, currentPath, registrator_id) {
 
         }
     }
-    console.log(arr);
+    
+
     //    console.log(product_folder_all);
     return arr;
 
@@ -196,7 +196,6 @@ function findProductSv(root, product_group_all, product_desc_mapping_all) {
             res.desc[product_desc_mapping_find.field] = element.elements[1].elements[0].text;
         }
         //console.log(product_desc_mapping_id, product_desc_mapping_find.field , product_desc_mapping_find.name_1c);
-
     })
     //console.log(JSON.stringify(res));
     return res;
@@ -213,22 +212,24 @@ export async function findProductRc(root, registrator_id) {
     const res = {};
     const product_vid_all = await findDB('product_vid', '', '', '');
     
-    for (const element of root) {
-    //root.forEach(element => {
-        // console.log('===================');
-        //  console.log(element);
+    for (const element of root) { // перебираем все реквизиты товара
+
         
         const rc_name = element.elements[0].elements[0].text; // читаем название реквизита   
         const rc_value = element.elements[1].elements[0].text; // читаем значение реквизита
+
+        //if (rc_name == 'Полное наименование') {} пока не пишем в базу
+        //if (rc_name == 'ТипНоменклатуры') {} пока не пишем в базу
+
         if (rc_name == 'ВидНоменклатуры') {
-            let product_vid_find = product_vid_all.find(e => e.name_1c === rc_value);
+            let product_vid_find = product_vid_all.find(e => e.name_1c === rc_value); // ищем вид номенклатуры в таблице
             //console.log(product_vid_find);
             if (product_vid_find) {
                 //console.log('нашли');
                 res.product_vid_id = product_vid_find.id;
             } else {
                 
-                try {
+                try { // пишем в таблицу если нет такого вида номенклатуры
                     let obj = {
                         create_date: formatISO(Date.now(), { representation: 'complete' }),
                         name_1c: rc_value,

@@ -130,10 +130,10 @@ model store { // склады в 1С, они же магазины здесь
     id Int @id @default(autoincrement())
     id_1c String @unique
     name_1c String    
-    address String // заполнять самим
-    link_2gis String // заполнять самим - URL
-    phone String // заполнять самим
-    city String // заполнять самим
+    address String? // заполнять самим
+    link_2gis String? // заполнять самим - URL
+    phone String? // заполнять самим
+    city String? // заполнять самим
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
     registrator_id Int
@@ -146,7 +146,7 @@ model price_vid { // типы цен - Розничная (РФ-Китай) до
     id Int @id @default(autoincrement())
     id_1c String @unique
     name_1c String  
-    active Boolean // использовать ли этот пункт как розничную
+    active Boolean? // использовать ли этот пункт как розничную
     active_change_date DateTime @db.Timestamptz 
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
@@ -225,7 +225,7 @@ model image_registry { // регистр изображений товаров
     id Int @id @default(autoincrement())
     resolution String? // разрешение по горизонтали
     file String // имя файла с полным путем - нужно для проверки дублей при загрузке, одинаковое имя и размер файла - не загружаем повторно
-    size String // размер файла в байтах
+    size Int // размер файла в байтах
     path String? // путь до файла
     operation_date DateTime @db.Timestamptz    
     main Boolean  // использовать как основное изображение для карточки продукта
