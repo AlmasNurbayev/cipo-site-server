@@ -16,6 +16,8 @@ import { findDB } from './findDB.js';
 import { findImages } from './findImages.js';
 import { findPrices } from './findPrices.js';
 import { findSizes } from './findSizes.js';
+import { findOffer } from './findOffer.js';
+
 
 
 dotenv.config();
@@ -132,8 +134,11 @@ async function parseOffers(path, file, user_id) {
     logger.info('parser/parseML.js - parseOffers ' + ' - size');
     const obj_sizes = findSizes(obj, 'Свойства', 'Размер2');
     await recordDB('array', 'size', obj_sizes, res_record.registrator.id);
-    
 
+    logger.info('parser/parseML.js - parseOffers ' + ' - offers');
+    const obj_offers = findOffer(obj);
+
+    // 
 
 }
 

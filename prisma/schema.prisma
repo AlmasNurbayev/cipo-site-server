@@ -140,6 +140,8 @@ model store { // склады в 1С, они же магазины здесь
     // date monitor
     create_date DateTime? @db.Timestamptz
     changed_date DateTime @updatedAt @db.Timestamptz
+    // used in 
+    qnt_registry qnt_registry[]    
 }
 
 model price_vid { // типы цен - Розничная (РФ-Китай) до 3500
@@ -210,6 +212,8 @@ model qnt_registry { // регистр остатков
     qnt Decimal
     operation_date DateTime @db.Timestamptz
     // foreign keys
+    store store @relation(fields: [store_id], references: [id])
+    store_id Int
     product product @relation(fields: [product_id], references: [id])
     product_id Int
     size size @relation(fields: [size_id], references: [id])

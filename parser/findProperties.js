@@ -9,7 +9,7 @@
  * @return {Object} найденный объект и вложенные объекты 
  */
 export function findNestedObj(entireObj, keyToFind, valToFind) {
-    let foundObj;
+    let foundObj = undefined;
     JSON.stringify(entireObj, (_, nestedValue) => {
         if (nestedValue && nestedValue[keyToFind] === valToFind) {
             foundObj = nestedValue;
