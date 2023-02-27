@@ -193,6 +193,9 @@ model price_registry { // регистр цен
     id Int @id @default(autoincrement())
     sum Decimal
     operation_date DateTime @db.Timestamptz
+    discount_percent Decimal?
+    discount_begin DateTime? @db.Timestamptz
+    discount_end DateTime? @db.Timestamptz
     // foreign keys
     product product @relation(fields: [product_id], references: [id])
     product_id Int

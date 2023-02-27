@@ -20,6 +20,7 @@ import { findOffer } from './findOffer.js';
 
 
 
+
 dotenv.config();
 
 /**
@@ -84,11 +85,6 @@ async function parseImport(path, file, user_id) {
     obj_product_without_images.forEach(element => {
        delete element.images;    
     });
-    // const obj_product_without_images = obj_product.map(item =>{
-    //     delete item.images;    
-    //     return item;
-    // }
-    // );
 
     const res_record_product = await recordDB('array', 'product', obj_product_without_images, res_record.registrator.id);
     writeLog('products_record.txt',JSON.stringify(res_record_product));
@@ -136,7 +132,10 @@ async function parseOffers(path, file, user_id) {
     await recordDB('array', 'size', obj_sizes, res_record.registrator.id);
 
     logger.info('parser/parseML.js - parseOffers ' + ' - offers');
-    const obj_offers = findOffer(obj);
+    const obj_offers = await findOffer(obj);
+    console.log(obj_offers);
+    await recordDB('array', 'price_registry', obj_offers.price, res_record.registrator.id);
+    await recordDB('array', 'qnt_registry', obj_offers.qnt, res_record.registrator.id);
 
     // 
 
