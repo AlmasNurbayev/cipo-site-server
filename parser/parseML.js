@@ -16,6 +16,7 @@ import { findSizes } from './findSizes.js';
 import { findOffer } from './findOffer.js';
 import { updateDB } from './updateDB.js';
 import { findDB } from './findDB.js';
+import { prismaI } from '../utils/prisma.js';
 
 
 
@@ -89,7 +90,7 @@ async function parseImport(path, file, user_id) {
 
     logger.info('parser/parseML.js - parseImport ' + ' - obj_product_group');
     const obj_product_group = await findProperties(obj, 'Свойства', 'ТоварнаяГруппа');
-    console.log(obj_product_group);
+    //console.log(obj_product_group);
     await recordDB('array', 'product_group', obj_product_group.record, res_record.registrator.id);
     if (obj_product_group.update.length > 0) {
         for (const element of obj_product_group.update) {
@@ -197,6 +198,9 @@ async function main(user_id) {
     }
     await parseImport(newFolder, newFolder + '/import0_1.xml', user_id);
     await parseOffers(newFolder, newFolder + '/offers0_1.xml', user_id);
+
+    await prismaI.$disconnect();
+    logger.info('parser/parseML.js - main ' + 'end ');
     return;
 }
 
