@@ -34,9 +34,9 @@ model product { // Товары
     material_inside String?
     material_podoshva String?
     description String? // общее описание, например "густой мех, маломерят"
+    sex Int? // пол обуви, 1 - мальчик, 2 - девочка, 3 - унисекс
+    product_folder String? // папка элемента из справочника НСИ 
     // foreign keys
-    product_folder product_folder? @relation(fields: [product_folder_id], references: [id])
-    product_folder_id Int?
     product_group product_group @relation(fields: [product_group_id], references: [id])
     product_group_id Int
     product_vid product_vid @relation(fields: [product_vid_id], references: [id])
@@ -70,20 +70,6 @@ model product_desc_mapping { // маппинг дополнительных св
 }
 
 model product_group { // ТоварнаяГруппа - Зима тяжелая (-5 -30)
-    id Int @id @default(autoincrement())
-    id_1c String @unique
-    name_1c String
-    // foreign keys
-    registrator registrator @relation(fields: [registrator_id], references: [id])
-    registrator_id Int
-    // date monitor
-    create_date DateTime? @db.Timestamptz
-    changed_date DateTime @updatedAt @db.Timestamptz
-    // used in
-    product product[] //virtual
-}
-
-model product_folder { // Папка в справочнике Номенклатура - Обувь детская
     id Int @id @default(autoincrement())
     id_1c String @unique
     name_1c String
@@ -231,9 +217,10 @@ model qnt_registry { // регистр остатков
 model image_registry { // регистр изображений товаров
     id Int @id @default(autoincrement())
     resolution String? // разрешение по горизонтали
-    file String // имя файла с полным путем - нужно для проверки дублей при загрузке, одинаковое имя и размер файла - не загружаем повторно
+    full_name String // имя файла с полным путем
+    name String @unique// имя файла  - нужно для проверки дублей при загрузке, одинаковое имя и размер файла - не загружаем повторно
+    path String // путь до файла
     size Int // размер файла в байтах
-    path String? // путь до файла
     operation_date DateTime @db.Timestamptz    
     main Boolean  // использовать как основное изображение для карточки продукта
     main_change_date DateTime @db.Timestamptz    
@@ -273,7 +260,6 @@ model registrator {
     price_registry price_registry[]
     product product[]
     product_group product_group[]
-    product_folder product_folder[]
     product_vid product_vid[]
     price_vid price_vid[]
     store store[]

@@ -14,7 +14,7 @@ import { logger } from '../utils/logger.js'
  */
 export async function findDB(table, field = '', value = '', select = '') {
 
-    logger.info('parser/findDB.js - starting ' + value + ' in field ' + field +  ' in table ' + table + ' select ' + select);
+    //logger.info('parser/findDB.js - starting ' + value + ' in field ' + field +  ' in table ' + table + ' select ' + select);
     let query;
     if (field !='' && value != '') {
         query = {
@@ -29,10 +29,10 @@ export async function findDB(table, field = '', value = '', select = '') {
     
     try {
         const res = await prismaI[table].findMany(query)
-        logger.info('parser/findDB.js - ended ');
+        //logger.info('parser/findDB.js - ended ');
         return res;
     } catch (error) {
-        logger.error(error.stack);
+        logger.error('parser/findDB.js' + error.stack);
         console.log(error.stack);
     }
 

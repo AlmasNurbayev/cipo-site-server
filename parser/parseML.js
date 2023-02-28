@@ -2,32 +2,29 @@
 
 import { formatISO } from 'date-fns';
 import fs from 'fs/promises';
-import path from 'path';
 import convert from 'xml-js';
-import dotenv from 'dotenv';
-import _ from 'lodash';
+import * as dotenv from 'dotenv'
 import { findProperties } from './findProperties.js';
 import { findRegistrator } from './findRegistrator.js';
 import { findFolder } from './findFolder.js';
 import { logger, writeLog } from '../utils/logger.js';
 import { recordDB } from './recordDB.js';
 import { findProduct } from './findProduct.js';
-import { findDB } from './findDB.js';
 import { findImages } from './findImages.js';
 import { findPrices } from './findPrices.js';
 import { findSizes } from './findSizes.js';
 import { findOffer } from './findOffer.js';
+import { updateDB } from './updateDB.js';
+import { findDB } from './findDB.js';
 
 
 
-
-dotenv.config();
 
 /**
  * находим папку oldPath и переименовываем в папку с датой-временем
  * @function
  * @param {string} oldPath - путь/имя текущей папки
- * @return {string | undefined} возвращаем путь/имя новой папки или undefned если не получилось
+ * @return {string | Error} возвращаем путь/имя новой папки или аварийно завершаем процесс
  */
 async function moveUpload(oldPath) {
     logger.info('parser/parseML.js - moveUpload ' + 'begin ' + oldPath);
@@ -41,6 +38,29 @@ async function moveUpload(oldPath) {
         logger.error('parser/parseML.js - moveUpload ' + error.stack);
         console.log('parser/parseML.js - moveUpload ' + error.stack);
         return undefined;
+    }
+}
+
+/**
+ * находим папку с картинками (import_files) и копируем ее в корень проекта в папку product_images
+ * @function
+ * @param {string} oldPath - путь/имя текущей папки
+ * @param {string} newPath - путь/имя текущей папки
+ * @return {string | Error} возвращаем путь/имя новой папки или аварийно завершаем процесс
+ */
+async function copyImages(oldPath) {
+    logger.info('parser/parseML.js - copyImages ' + 'begin ' + oldPath);
+    //const result = formatISO(Date.now(), { representation: 'complete' }).replaceAll(':', '-');
+    //const newFolderName = oldPath + '_' + result;
+    try {
+        await fs.cp(oldPath, 'product_images', { recursive: true });
+        logger.info('parser/parseML.js - copyImages ' + 'end ' + oldPath + ' to folder: ' + 'product_images');
+        return 'product_images';
+    } catch (error) {
+        logger.error('parser/parseML.js - copyImages ' + error.stack);
+        console.log('parser/parseML.js - copyImages ' + error.stack);
+        throw Error;
+        //return undefined;
     }
 }
 
@@ -68,30 +88,50 @@ async function parseImport(path, file, user_id) {
 
 
     logger.info('parser/parseML.js - parseImport ' + ' - obj_product_group');
-    const obj_product_group = findProperties(obj, 'Свойства', 'ТоварнаяГруппа');
-    await recordDB('array', 'product_group', obj_product_group, res_record.registrator.id);
+    const obj_product_group = await findProperties(obj, 'Свойства', 'ТоварнаяГруппа');
+    console.log(obj_product_group);
+    await recordDB('array', 'product_group', obj_product_group.record, res_record.registrator.id);
+    if (obj_product_group.update.length > 0) {
+        for (const element of obj_product_group.update) {
+            const res_update_product_group = await updateDB('object', 'product_group', element, { id_1c: element.id_1c }, res_record.registrator.id);
+        };
+    };
+
+
+
     //console.log(obj_product_group);
-            
-    logger.info('parser/parseML.js - parseImport ' + ' - obj_product_vid');
-    const obj_product_folder = findFolder(obj, 'Классификатор', 'Группы');
-    await recordDB('array', 'product_folder', obj_product_folder, res_record.registrator.id);
-    //console.log(obj_product_folder);
 
     // парсим и пишем таблицу товаров
     logger.info('parser/parseML.js - parseImport ' + ' - obj_product');
-    const obj_product = await findProduct(obj, path, res_record.registrator.id);
-    writeLog('products_parsing.txt',JSON.stringify(obj_product));
-    const obj_product_without_images = JSON.parse(JSON.stringify(obj_product)); // создаем копию массива товаров и убираем картинки, т.к. их нет в таблице product
-    obj_product_without_images.forEach(element => {
-       delete element.images;    
+    let obj_product = await findProduct(obj, res_record.registrator.id);
+    writeLog('products_parsing.txt', JSON.stringify(obj_product));
+    const obj_product_without_images_rec = JSON.parse(JSON.stringify(obj_product.record)); // создаем копию массива товаров и убираем картинки, т.к. их нет в таблице product
+    obj_product_without_images_rec.forEach(element => {
+        delete element.images;
     });
+    const res_record_product = await recordDB('array', 'product', obj_product_without_images_rec, res_record.registrator.id);
+    const obj_product_without_images_upd = JSON.parse(JSON.stringify(obj_product.update)); // создаем копию массива товаров и убираем картинки, т.к. их нет в таблице product
+    if (obj_product_without_images_upd.length > 0) {
+        for (const element of obj_product_without_images_upd) {
+            delete element.images;
+            const res_update_product = await updateDB('object', 'product', element, { id_1c: element.id_1c }, res_record.registrator.id);
+        };
+    };
 
-    const res_record_product = await recordDB('array', 'product', obj_product_without_images, res_record.registrator.id);
-    writeLog('products_record.txt',JSON.stringify(res_record_product));
 
     // создаем объект для таблицы картинок и пишем в БД 
+    obj_product = await findDB('product', '', '', ''); // нужна уже записанная таблица продуктов из базы чтобы получить id их записей
     const obj_images = await findImages(obj_product, res_record.registrator.id);
-    const res_record_images = await recordDB('array', 'image_registry', obj_images, res_record.registrator.id);
+    //const res_record_images = await recordDB('array', 'image_registry', obj_images.record, res_record.registrator.id);
+    const res_record_images = await recordDB('array', 'image_registry', obj_images.record, res_record.registrator.id);
+    if (obj_images.update.length > 0) {
+        for (const element of obj_images.update) {
+            const res_update_images = await updateDB('object', 'image_registry', element, { name: element.name }, res_record.registrator.id);
+        }
+    }
+
+
+    return;
 }
 
 /**
@@ -114,7 +154,7 @@ async function parseOffers(path, file, user_id) {
 
     logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
     const res_record = {};
-    res_record.registrator = await recordDB('object', 'registrator', obj_registrator);    
+    res_record.registrator = await recordDB('object', 'registrator', obj_registrator);
 
     logger.info('parser/parseML.js - parseOffers ' + ' - prices');
     const obj_prices = findPrices(obj, 'ПакетПредложений', 'ТипыЦен', res_record.registrator.id);
@@ -133,27 +173,34 @@ async function parseOffers(path, file, user_id) {
 
     logger.info('parser/parseML.js - parseOffers ' + ' - offers');
     const obj_offers = await findOffer(obj);
-    console.log(obj_offers);
+    //console.log(obj_offers);
     await recordDB('array', 'price_registry', obj_offers.price, res_record.registrator.id);
     await recordDB('array', 'qnt_registry', obj_offers.qnt, res_record.registrator.id);
-
+    return;
     // 
 
 }
 
 async function main(user_id) {
+
+    dotenv.config();
+
     logger.info('parser/parseML.js - main ' + 'begin ');
+
+
+    const copyImages_res = await copyImages(process.env.mlRoute + '/import_files');
     const newFolder = await moveUpload(process.env.mlRoute);
+
     if (newFolder === undefined) {
         logger.info('parser/parseML.js - main ' + 'moveUpload undefined');
         return;
     }
-    await parseImport(newFolder, newFolder+'/import0_1.xml', user);
+    await parseImport(newFolder, newFolder + '/import0_1.xml', user_id);
+    await parseOffers(newFolder, newFolder + '/offers0_1.xml', user_id);
+    return;
 }
- 
-parseImport('uploads/webdata','uploads/webdata/import0_1.xml',4);
-parseOffers('uploads/webdata','uploads/webdata/offers0_1.xml',4);
 
+main(4);
 
 
 

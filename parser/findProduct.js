@@ -4,6 +4,7 @@ import { findNestedObj } from "./findProperties.js";
 import { findDB } from "./findDB.js";
 import { formatISO } from 'date-fns';
 import fs from 'fs';
+import path from 'path';
 import { logger, writeLog } from "../utils/logger.js";
 import { recordDB } from "./recordDB.js";
 
@@ -12,15 +13,14 @@ import { recordDB } from "./recordDB.js";
  * парсим объект с товарами и возвращаем массив объектов (товаров) с реквизитами
  * @function
  * @param {string} obj - объект с товарами
- * @param {string} currentPath - путь до папки с загрузкой, нужен для добавления к пути картинок
  * @param {string} registrator_id - id текущего регистратора из таблицы регистраторов, нужен для записей в других таблицах
- * @return {array} возвращаем массив объектов (товаров) с реквизитами. Внутри по 1 объекту на каждый товар
+ * @return {array} возвращаем объект с 2-мя массивами объектов (товаров) с реквизитами. Массив для создания (record), массиов для обновления (update)
  */
-export async function findProduct(obj, currentPath, registrator_id) {
-    const arr = [];
+export async function findProduct(obj, registrator_id) {
+    const arr_record = [];
+    const arr_update = [];
     const currentDate = formatISO(Date.now(), { representation: 'complete' });
-    const product_vid_all = await findDB('product_vid', '', '', '');
-    const product_folder_all = await findDB('product_folder', '', '', '');
+    const product_all = await findDB('product', '', '', '');
     const product_group_all = await findDB('product_group', '', '', '');
     const product_desc_mapping_all = await findDB('product_desc_mapping', '', '', '');
 
@@ -37,7 +37,7 @@ export async function findProduct(obj, currentPath, registrator_id) {
             // ищем реквизиты продукта
             let name_1c = undefined;
             let artikul = undefined;
-            let product_folder_id = undefined;
+            let product_folder = undefined;
             let product_group_id = undefined;
             let product_vid_id = undefined;
             let description = undefined;
@@ -79,12 +79,7 @@ export async function findProduct(obj, currentPath, registrator_id) {
                 if (element_2.name === 'Группы') {
                     //console.log(element_des);
                     if (element_2.elements) {
-                        const fold_id = element_2.elements[0].elements[0].text;
-                        const product_folder_find = product_folder_all.find(e => e.id_1c === fold_id);
-                        //const product_folder_find = product_folder_all.find(e => e.id_1c === '123');
-                        if (product_folder_find) {
-                            product_folder_id = product_folder_find.id;
-                        }
+                        product_folder = element_2.elements[0].elements[0].text;
                     }
                 }
                 if (element_2.name === 'Описание') {
@@ -94,14 +89,29 @@ export async function findProduct(obj, currentPath, registrator_id) {
                     }
                 }
                 if (element_2.name === 'Картинка') {
-                    const obJ_image = { file: currentPath + '/' + element_2.elements[0].text };
+
+                    // full_name String // имя файла с полным путем
+                    // name String // имя файла  - нужно для проверки дублей при загрузке, одинаковое имя и размер файла - не загружаем повторно
+                    // path String // путь до файла
+                    let full_name = element_2.elements[0].text;
+                    let name = path.parse(full_name).base;
+                    let path0 = path.parse(full_name).dir;
+
+                    full_name = full_name.replaceAll('import_files', 'product_images');
+                    path0 = path0.replaceAll('import_files', 'product_images');
+
+                    const obJ_image = { 
+                        full_name: full_name,
+                        name: name,
+                        path: path0
+                    };
                     obJ_image.size = 0;
                     if (images.length === 0) {
                         obJ_image.main = true; // первая картинка становится главной
                     } else { obJ_image.main = false }
 
                     try { // пытаемся получить размер в синхронном режиме
-                        let stat = fs.statSync(obJ_image.file);
+                        let stat = fs.statSync(full_name);
                         obJ_image.size = stat.size;
                     } catch (error) {
                         logger.error('parser/findProduct.js - file size measure ' + obJ_image.file + ' - ' + error.stack)
@@ -134,14 +144,13 @@ export async function findProduct(obj, currentPath, registrator_id) {
                 }
 
             }
-
-            arr.push({
+            let data = {
                 artikul: artikul,
                 name_1c: name_1c,
                 name: name_1c,
                 id_1c: id_1c,
                 base_ed: base_ed,
-                product_folder_id: product_folder_id,
+                product_folder: product_folder,
                 description: description,
                 images: images,
                 product_group_id: product_group_id,
@@ -149,17 +158,24 @@ export async function findProduct(obj, currentPath, registrator_id) {
                 material_inside: material_inside,
                 material_podoshva: material_podoshva,
                 product_vid_id: product_vid_id, 
-
-                //const product_group_finded = await findDB('product_group', 'id_1c', element.elements[4].elements[0].elements[0].text);
-                //product_group_finded: product_group_finded, 
-            })
+            }
+            let duplicate = product_all.find(e => e.id_1c === id_1c);
+            if (duplicate) {
+                arr_update.push(data);
+            } else {
+                arr_record.push(data);
+            }
+            
 
         }
     }
     
 
     //    console.log(product_folder_all);
-    return arr;
+    return {
+        record: arr_record,
+        update: arr_update
+    };
 
 }
 

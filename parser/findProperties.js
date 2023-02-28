@@ -1,5 +1,7 @@
 'useStrict';
 
+import { findDB } from "./findDB.js";
+
 /**
  * глубокий поиск внутри дерева объектов пары ключ-значение
  * @function
@@ -25,10 +27,12 @@ export function findNestedObj(entireObj, keyToFind, valToFind) {
  * @param {string} obj - полный объект
  * @param {string} prop_root - название узла Свойства от которого ищем дальше
  * @param {string} prop_name - название узла конкретное Свойство, который надо развернуть в массив
- * @return {Array} возвращаем элементы справочника Свойства как  массив с объектами, поля id_1c, name_1c 
+ * @return {object} возвращаем в объекте 2 массива Товарных групп, record - для записи новых, update - для обновления
  */
-export function findProperties(obj, prop_root, prop_name) {
-    const arr = [];
+export async function findProperties(obj, prop_root, prop_name) {
+    const arr_record = [];
+    const arr_update = [];
+    const product_group_all = await findDB('product_group', '', '', ''); // для проверки дублей
     const tree_properties = (findNestedObj(obj, 'name', prop_root));
     if (tree_properties.elements) {
         tree_properties.elements.forEach(element => {
@@ -39,15 +43,24 @@ export function findProperties(obj, prop_root, prop_name) {
                 if (tree_properties_product_group_tree) {
                     //console.log(tree_properties_product_group_tree);
                     tree_properties_product_group_tree.elements.forEach(element2 => {
-                        arr.push({
+                        let data = {
                             id_1c:  element2.elements[0].elements[0].text,
                             name_1c: element2.elements[1].elements[0].text    
-                        }); 
+                        };
+                        let duplicate = product_group_all.find(e => e.id_1c === data.id_1c)
+                        if (duplicate) {
+                            arr_update.push(data); 
+                        } else {
+                            arr_record.push(data); 
+                        }
                     })
                 }
             }
         });
-        return arr;
+        return {
+            record: arr_record,
+            update: arr_update
+        };
         
     }
 }

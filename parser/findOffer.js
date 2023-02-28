@@ -12,7 +12,7 @@ import { logger, writeLog } from "../utils/logger.js";
  * @param {string} registrator_id - id текущего регистратора из таблицы регистраторов, нужен для записей в других таблицах
  * @return {object} возвращаем  объект с 2 массивами. Один из них для цен, второй - для остатков товаров
  */
-export async function findOffer(obj, registrator_id) {
+export async function findOffer(obj) {
     const res = {};
     const res_price = [];
     const res_qnt = [];
@@ -62,7 +62,6 @@ export async function findOffer(obj, registrator_id) {
                     for (const element3 of element2.elements) {
                         let price_vid = undefined;
                         let price_value = 0;
-                        let retail = false;
                         if (element3.name === 'Цена' && element3.elements[1].name === 'ИдТипаЦены') {
                             const price_text = element3.elements[1].elements[0].text;
                             const price_find = price_vid_all.find(e => e.id_1c === price_text);
@@ -96,13 +95,12 @@ export async function findOffer(obj, registrator_id) {
                 }
                 if (element2.name === 'Склад') {
                     if (element2.attributes) {
-                        let id, name;
+                        let id;
                         if (element2.attributes.ИдСклада) {
                             const store_text = element2.attributes.ИдСклада;
                             const store_find = store_all.find(e => e.id_1c === store_text);
                             if (store_find) {
                                 id = store_find.id;
-                                name = store_find.name_1c;
                                 let data = {
                                     operation_date: currentDate,
                                     size_id: size_id,
@@ -119,8 +117,8 @@ export async function findOffer(obj, registrator_id) {
                         }
  
                     }
-                };
-            };
+                }
+            }
 
             /// проверка проблем
             if (price && price.length > 1) {
@@ -153,8 +151,8 @@ export async function findOffer(obj, registrator_id) {
             // res_price.push(price);
             // res_qnt.push(qnt);
 
-        };
-    };
+        }
+    }
     
     res.price = res_price;
     res.qnt = res_qnt;

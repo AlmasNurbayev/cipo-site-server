@@ -49,3 +49,5 @@ yarn-debug.log*
 yarn-error.log*
 
 /uploads
+
+product_images
