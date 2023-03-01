@@ -106,7 +106,9 @@ async function parseImport(path, file, user_id) {
     logger.info('parser/parseML.js - parseImport ' + ' - obj_product');
     let obj_product = await findProduct(obj, res_record.registrator.id);
     writeLog('products_parsing.txt', JSON.stringify(obj_product));
-    const obj_product_without_images_rec = JSON.parse(JSON.stringify(obj_product.record)); // создаем копию массива товаров и убираем картинки, т.к. их нет в таблице product
+
+    const obj_product_without_images_rec = structuredClone(obj_product.record)
+    //const obj_product_without_images_rec = JSON.parse(JSON.stringify(obj_product.record)); // создаем копию массива товаров и убираем картинки, т.к. их нет в таблице product
     obj_product_without_images_rec.forEach(element => {
         delete element.images;
     });

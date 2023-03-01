@@ -20,6 +20,7 @@ model user { // Пользователи
   changed_date DateTime @updatedAt @db.Timestamptz
   // used in
   registrator registrator[]
+  order order[]
 }
 
 model product { // Товары
@@ -54,6 +55,7 @@ model product { // Товары
     price_registry price_registry[] //virtual
     qnt_registry qnt_registry[] //virtual
     image_registry image_registry[] //virtual
+    cart cart[]
 }
 
 model product_desc_mapping { // маппинг дополнительных сведений между 1С и таблицей Product, Материал вверх = material_up
@@ -110,6 +112,7 @@ model size { // размеры - из <ХарактеристикаТовара>
     // used in
     price_registry price_registry[]
     qnt_registry qnt_registry[]
+    cart cart[]
 }
 
 model store { // склады в 1С, они же магазины здесь 
@@ -270,3 +273,40 @@ model registrator {
     product_desc_mapping product_desc_mapping[]
 }
 
+model order {
+    id Int @id @default(autoincrement())
+    operation_date DateTime @db.Timestamptz
+    user_auth Boolean // авторизован или нет
+    email_not_auth String? // в случае не авторизованного
+    phone_not_auth String? // в случае не авторизованного
+    name_not_auth String? // в случае не авторизованного
+    source String? // источник заказа - site, mobile
+    status String? // статус заказа - init, cancel, success
+        // foreign keys
+    user user? @relation(fields: [user_id], references: [id])
+    user_id Int?
+        // date monitor
+    create_date DateTime? @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+       // used in 
+    cart cart[]
+}
+
+model cart {
+    id Int @id @default(autoincrement())
+    operation_date DateTime @db.Timestamptz
+        // foreign keys
+    order order @relation(fields: [order_id], references: [id])
+    order_id Int
+    product product @relation(fields: [product_id], references: [id])
+    product_id Int
+    size size @relation(fields: [size_id], references: [id])
+    size_id Int
+    qnt Int
+    price Decimal
+    discount Boolean    
+    discount_percent Decimal?
+    price_final Decimal
+    // date monitor
+    changed_date DateTime @updatedAt @db.Timestamptz
+}
