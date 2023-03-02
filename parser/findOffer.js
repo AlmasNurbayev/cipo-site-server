@@ -16,6 +16,7 @@ export async function findOffer(obj) {
     const res = {};
     const res_price = [];
     const res_qnt = [];
+    const res_qnt_price = [];
     const root = findNestedObj(obj, 'name', 'Предложения');
     const currentDate = formatISO(Date.now(), { representation: 'complete' });
 
@@ -29,14 +30,18 @@ export async function findOffer(obj) {
         for (const element of root.elements) { // цикл по предложениям
 
             let product_id = undefined;
+            let product_group_id = undefined;
             let size_id = undefined;
             let artikul = undefined;
             let price = [];
             let qnt = [];
+            let qnt_price = [];
             //let price = 0;
 
 
             for (const element2 of element.elements) { // цикл по узлам
+
+                let data = {};
                 //qnt, operation_date, store_id, product_id, size_id
                 if (element2.name === 'Артикул') {
                     if (element2.elements[0].text) {
@@ -45,6 +50,7 @@ export async function findOffer(obj) {
                         if (artikul_find) {
                             product_id = artikul_find.id;
                             artikul = artikul0;
+                            product_group_id = artikul_find.product_group_id;
                             //console.log('========== ' + artikul);
                         }
                     }
@@ -78,17 +84,18 @@ export async function findOffer(obj) {
                                 price_value = Number(element3.elements[2].elements[0].text);
                                 //console.log(price_vid_id  + ' / ' +  price);
                             }
-                            let data = {
+                            let data1 = {
                                 operation_date: currentDate,
                                 size_id: size_id,
                                 product_id: product_id,
                                 price_vid_id: price_vid.id,
                                 //price_vid_name: price_vid.name_1c,
                                 //price_vid: price_vid,
-                                sum: price_value
+                                sum: price_value,
                             };
-                            res_price.push(data);
-                            price.push(data);
+                            //data = data1;
+                            res_price.push(data1);
+                            price.push(data1);
                             //console.log(price);
                         }
                     }
@@ -101,7 +108,7 @@ export async function findOffer(obj) {
                             const store_find = store_all.find(e => e.id_1c === store_text);
                             if (store_find) {
                                 id = store_find.id;
-                                let data = {
+                                let data2 = {
                                     operation_date: currentDate,
                                     size_id: size_id,
                                     product_id: product_id,
@@ -110,8 +117,11 @@ export async function findOffer(obj) {
                                     //ИдСклада: element2.attributes.ИдСклада,
                                     qnt: element2.attributes.КоличествоНаСкладе,
                                 };
-                                res_qnt.push(data);
-                                qnt.push(data);
+                                Object.assign(data, res_price.at(-1), data2);
+                                data.product_group_id = product_group_id;
+                                res_qnt.push(data2);
+                                qnt.push(data2);
+                                res_qnt_price.push(data);
                                 //console.log(qnt);                                
                             } 
                         }
@@ -156,7 +166,8 @@ export async function findOffer(obj) {
     
     res.price = res_price;
     res.qnt = res_qnt;
-    writeLog('offers_res.txt', JSON.stringify(res));
+    res.qnt_price = res_qnt_price;
+    writeLog('offers_res.txt', JSON.stringify(res_qnt_price));
     return(res);
 
 }

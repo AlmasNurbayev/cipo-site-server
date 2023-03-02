@@ -55,6 +55,7 @@ model product { // Товары
     price_registry price_registry[] //virtual
     qnt_registry qnt_registry[] //virtual
     image_registry image_registry[] //virtual
+    qnt_price_registry qnt_price_registry[]
     cart cart[]
 }
 
@@ -83,6 +84,7 @@ model product_group { // ТоварнаяГруппа - Зима тяжелая 
     changed_date DateTime @updatedAt @db.Timestamptz
     // used in
     product product[] //virtual
+    qnt_price_registry qnt_price_registry[]
 }
 
 model product_vid { // ВидНоменклатуры - Обувь детская
@@ -112,6 +114,7 @@ model size { // размеры - из <ХарактеристикаТовара>
     // used in
     price_registry price_registry[]
     qnt_registry qnt_registry[]
+    qnt_price_registry qnt_price_registry[]
     cart cart[]
 }
 
@@ -131,6 +134,7 @@ model store { // склады в 1С, они же магазины здесь
     changed_date DateTime @updatedAt @db.Timestamptz
     // used in 
     qnt_registry qnt_registry[]    
+    qnt_price_registry qnt_price_registry[]
 }
 
 model price_vid { // типы цен - Розничная (РФ-Китай) до 3500
@@ -147,6 +151,7 @@ model price_vid { // типы цен - Розничная (РФ-Китай) до
     changed_date DateTime @updatedAt @db.Timestamptz
     // used in
     price_registry price_registry[]
+    qnt_price_registry qnt_price_registry[]
 }
 
 model brend { // справочник брендов
@@ -217,6 +222,34 @@ model qnt_registry { // регистр остатков
     changed_date DateTime @updatedAt @db.Timestamptz
 }
 
+model qnt_price_registry {
+    id Int @id @default(autoincrement())
+    sum Decimal
+    qnt Decimal
+    operation_date DateTime @db.Timestamptz
+    discount_percent Decimal?
+    discount_begin DateTime? @db.Timestamptz
+    discount_end DateTime? @db.Timestamptz
+    // foreign keys
+    store store @relation(fields: [store_id], references: [id])
+    store_id Int    
+    product product @relation(fields: [product_id], references: [id])
+    product_id Int
+    product_group product_group @relation(fields: [product_group_id], references: [id])
+    product_group_id Int    
+    price_vid price_vid @relation(fields: [price_vid_id], references: [id])
+    price_vid_id Int
+    size size @relation(fields: [size_id], references: [id])
+    size_id Int
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime? @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+
+
+}
+
 model image_registry { // регистр изображений товаров
     id Int @id @default(autoincrement())
     resolution String? // разрешение по горизонтали
@@ -271,6 +304,7 @@ model registrator {
     country country[]
     image_registry image_registry[]
     product_desc_mapping product_desc_mapping[]
+    qnt_price_registry qnt_price_registry[]
 }
 
 model order {

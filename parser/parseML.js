@@ -179,6 +179,7 @@ async function parseOffers(path, file, user_id) {
     //console.log(obj_offers);
     await recordDB('array', 'price_registry', obj_offers.price, res_record.registrator.id);
     await recordDB('array', 'qnt_registry', obj_offers.qnt, res_record.registrator.id);
+    await recordDB('array', 'qnt_price_registry', obj_offers.qnt_price, res_record.registrator.id);
     return;
     // 
 
