@@ -7,6 +7,7 @@ import { formatISO } from 'date-fns';
 /**
  * обновляем записи в таблице БД
  * @function
+ * @param {function} tx - экземпляр Призма для записи транзакций
  * @param {string} type - тип данных, одиночный объект (object) или массив (array)
  * @param {string} table - имя таблицы
  * @param {object} obj - объект с данными
@@ -14,7 +15,7 @@ import { formatISO } from 'date-fns';
  * @param {number} registratorID - ID регистратора, добавляется в запись в случае записи массива
  * @return {object | undefined} возвращает объект с кол-вом обновленных записей или undefined
  */
-export async function updateDB(type, table, obj, where, registratorID) {
+export async function updateDB(tx, type, table, obj, where, registratorID) {
     logger.info('parser/updateDB.js - starting ' + type + ' / ' + table +  ' / registrator id: ' + registratorID);
 
     const currentDate = formatISO(Date.now(), { representation: 'complete' });
@@ -31,7 +32,7 @@ export async function updateDB(type, table, obj, where, registratorID) {
                     where: where,
                     data: obj
                 }}            
-            const res = await prismaI[table].update(data)
+            const res = await tx[table].update(data)
             logger.info('parser/updateDB.js - ended ' + JSON.stringify(res));
             return res;
         } catch (error) {
@@ -57,7 +58,7 @@ export async function updateDB(type, table, obj, where, registratorID) {
                         where: where,
                         data: obj,
                     }}
-                const res = await prismaI[table].update(data)
+                const res = await tx[table].update(data)
                 logger.info('parser/updateDB.js - ended ' + JSON.stringify(res));
                 return res;
             } catch (error) {

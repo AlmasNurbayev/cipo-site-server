@@ -12,17 +12,18 @@ import { recordDB } from "./recordDB.js";
 /**
  * парсим объект с товарами и возвращаем массив объектов (товаров) с реквизитами
  * @function
+ * @param {function} tx - экземпляр Призма для записи транзакций
  * @param {string} obj - объект с товарами
  * @param {string} registrator_id - id текущего регистратора из таблицы регистраторов, нужен для записей в других таблицах
  * @return {array} возвращаем объект с 2-мя массивами объектов (товаров) с реквизитами. Массив для создания (record), массиов для обновления (update)
  */
-export async function findProduct(obj, registrator_id) {
+export async function findProduct(tx, obj, registrator_id) {
     const arr_record = [];
     const arr_update = [];
     const currentDate = formatISO(Date.now(), { representation: 'complete' });
-    const product_all = await findDB('product', '', '', '');
-    const product_group_all = await findDB('product_group', '', '', '');
-    const product_desc_mapping_all = await findDB('product_desc_mapping', '', '', '');
+    const product_all = await findDB(tx, 'product', '', '', '');
+    const product_group_all = await findDB(tx, 'product_group', '', '', '');
+    const product_desc_mapping_all = await findDB(tx, 'product_desc_mapping', '', '', '');
 
     // console.table(product_group_all);
     // console.table(product_desc_mapping_all);
@@ -39,6 +40,7 @@ export async function findProduct(obj, registrator_id) {
             let artikul = undefined;
             let product_folder = undefined;
             let product_group_id = undefined;
+            let product_group_name = undefined;
             let product_vid_id = undefined;
             let description = undefined;
             let id_1c = undefined;
@@ -128,6 +130,7 @@ export async function findProduct(obj, registrator_id) {
                         const res_sv = findProductSv(element_2.elements, product_group_all, product_desc_mapping_all); // декомпозируем поиск Свойств товара в отдельную функцию
                         //console.log(JSON.stringify(res_sv));
                         product_group_id = res_sv.group;
+                        //product_group_name = res_sv.name;
                         // if (Array.isArray(res_sv.desc)) {
                         ({ material_up, material_inside, material_podoshva } = res_sv.desc); // т.к. эти переменные уже объявлены, то всю деструктуризацию нужно обернуть в скобки
                         // console.log(material_up, material_inside, material_podoshva);
@@ -136,7 +139,7 @@ export async function findProduct(obj, registrator_id) {
                 }
                 if (element_2.name === 'ЗначенияРеквизитов') {
                     if (element_2.elements) {
-                        const res_rc = await findProductRc(element_2.elements, registrator_id); // декомпозируем поиск Реквизитов товара в отдельную функцию
+                        const res_rc = await findProductRc(tx, element_2.elements, registrator_id); // декомпозируем поиск Реквизитов товара в отдельную функцию
                         if ('product_vid_id' in res_rc) {
                             product_vid_id = res_rc.product_vid_id;
                         }
@@ -154,6 +157,7 @@ export async function findProduct(obj, registrator_id) {
                 description: description,
                 images: images,
                 product_group_id: product_group_id,
+                //product_group_name: product_group_name,
                 material_up: material_up,
                 material_inside: material_inside,
                 material_podoshva: material_podoshva,
@@ -206,6 +210,7 @@ function findProductSv(root, product_group_all, product_desc_mapping_all) {
             product_group_id = product_group_find.id;
             //console.log(product_group_id, product_group_find.name_1c);
             res.group = product_group_id;
+            //res.name = product_group_find.name_1c;
         }
 
         const desc_id = element.elements[0].elements[0].text;
@@ -222,13 +227,14 @@ function findProductSv(root, product_group_all, product_desc_mapping_all) {
 /**
  * парсим объект с ревизитами товара и возвращаем объект свойств
  * @function
+ * @param {function} tx - экземпляр Призма для записи транзакций
  * @param {object} root - объект со свойствами товара
  * @param {number} registrator_id - номер регистратора, нужен для записи в таблицы справочников
 * @return {object} возвращаем объект со свойствами
  */
-export async function findProductRc(root, registrator_id) {
+export async function findProductRc(tx, root, registrator_id) {
     const res = {};
-    const product_vid_all = await findDB('product_vid', '', '', '');
+    const product_vid_all = await findDB(tx, 'product_vid', '', '', '');
     
     for (const element of root) { // перебираем все реквизиты товара
 
@@ -253,7 +259,7 @@ export async function findProductRc(root, registrator_id) {
                         name_1c: rc_value,
                         registrator_id: registrator_id 
                     }
-                    let record_res = await recordDB('object', 'product_vid', obj, registrator_id);
+                    let record_res = await recordDB(tx, 'object', 'product_vid', obj, registrator_id);
                     //console.log(res2);
                     res.product_vid_id = record_res.id;
                     // product_vid_all.push({

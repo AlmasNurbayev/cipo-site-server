@@ -8,13 +8,13 @@ import { recordDB } from "./recordDB.js";
 /**
  * получаем объект продуктов, вытаскиваем из него подобъекты images, сопоставляем продукт из базы
  * @function
+ * @param {function} tx - экземпляр Призма для записи транзакций* 
  * @param {object} obj - объект продуктов со всеми полями, включая массив images
- * @param {number} registrator_id - номер регистратора, нужен для включения в объект для записи в таблицу
- * @return {object} возвращаем объект с 2-мя массивами (record) для записи в таблицу image_registry и для обновления сущствующих записей (update)
+  * @return {object} возвращаем объект с 2-мя массивами (record) для записи в таблицу image_registry и для обновления сущствующих записей (update)
  */
-export async function findImages(obj, registrator_id) {
-    const product_all = await findDB('product', '', '', ''); // нужна уже записанная таблица продуктов из базы чтобы получить id их записей
-    const image_registry_all = await findDB('image_registry', '', '', ''); // для проверки дублей
+export async function findImages(tx, obj) {
+    const product_all = await findDB(tx, 'product', '', '', ''); // нужна уже записанная таблица продуктов из базы чтобы получить id их записей
+    const image_registry_all = await findDB(tx, 'image_registry', '', '', ''); // для проверки дублей
 
     writeLog('products_all.txt',JSON.stringify(product_all));
 
@@ -22,12 +22,11 @@ export async function findImages(obj, registrator_id) {
 
     const res = [];
     const res_update = [];
-    //console.log(obj);
     for (const element of obj) { // цикл по товарам
-        
         if (element.images != undefined) {
             
             const product_id = product_all.find(e => e.id_1c === element.id_1c); // находим сопоставимое id_1с продукта и по нему берем id продукта
+            console.log(product_id);
             if (!product_id) {continue;} 
             for (const element2  of element.images) {    // цикл по картинкам
                  const compare = image_registry_all.find(e => e.name === element2.name)  // ищем в базе такое же имя картинки

@@ -8,11 +8,12 @@ import { logger, writeLog } from "../utils/logger.js";
 /**
  * парсим объект с предложениями и возвращаем массив объектов (предложений) для регистра цен и регистра остатков
  * @function
+ * @param {function} tx - экземпляр Призма для записи транзакций
  * @param {string} obj - объект с товарами
  * @param {string} registrator_id - id текущего регистратора из таблицы регистраторов, нужен для записей в других таблицах
  * @return {object} возвращаем  объект с 2 массивами. Один из них для цен, второй - для остатков товаров
  */
-export async function findOffer(obj) {
+export async function findOffer(tx, obj) {
     const res = {};
     const res_price = [];
     const res_qnt = [];
@@ -21,10 +22,10 @@ export async function findOffer(obj) {
     const currentDate = formatISO(Date.now(), { representation: 'complete' });
 
     if (root) {
-        const product_all = await findDB('product', '', '', '');
-        const size_all = await findDB('size', '', '', '');
-        const price_vid_all = await findDB('price_vid', '', '', '');
-        const store_all = await findDB('store', '', '', '');
+        const product_all = await findDB(tx, 'product', '', '', '');
+        const size_all = await findDB(tx, 'size', '', '', '');
+        const price_vid_all = await findDB(tx, 'price_vid', '', '', '');
+        const store_all = await findDB(tx, 'store', '', '', '');
         //console.log(size_all);
 
         for (const element of root.elements) { // цикл по предложениям

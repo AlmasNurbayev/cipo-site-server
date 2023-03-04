@@ -68,11 +68,12 @@ async function copyImages(oldPath) {
 /**
  * парсим import0_1.xml и записываем все в базу
  * @function
+ * @param {function} tx - экземпляр Призма для записи транзакций
  * @param {string} path - путь до файла без имени файла
  * @param {string} file - полный путь до файла
  * @param {number} user_id - id юзера, под которым пишется регистратор 
  */
-async function parseImport(path, file, user_id) {
+async function parseImport(tx, path, file, user_id) {
     logger.info('parser/parseML.js - parseImport ' + 'begin ' + file);
     const xml = await fs.readFile(file);
     let result = convert.xml2json(xml);
@@ -84,17 +85,17 @@ async function parseImport(path, file, user_id) {
     //console.log(obj_registrator);
     logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
     const res_record = {};
-    res_record.registrator = await recordDB('object', 'registrator', obj_registrator);
+    res_record.registrator = await recordDB(tx, 'object', 'registrator', obj_registrator);
     //console.log(res_record.registrator);
 
 
     logger.info('parser/parseML.js - parseImport ' + ' - obj_product_group');
-    const obj_product_group = await findProperties(obj, 'Свойства', 'ТоварнаяГруппа');
-    //console.log(obj_product_group);
-    await recordDB('array', 'product_group', obj_product_group.record, res_record.registrator.id);
+    const obj_product_group = await findProperties(tx, obj, 'Свойства', 'ТоварнаяГруппа');
+    //writeLog('product_group.txt',JSON.stringify(obj_product_group));
+    await recordDB(tx, 'array', 'product_group', obj_product_group.record, res_record.registrator.id);
     if (obj_product_group.update.length > 0) {
         for (const element of obj_product_group.update) {
-            const res_update_product_group = await updateDB('object', 'product_group', element, { id_1c: element.id_1c }, res_record.registrator.id);
+            const res_update_product_group = await updateDB(tx, 'object', 'product_group', element, { id_1c: element.id_1c }, res_record.registrator.id);
         };
     };
 
@@ -104,7 +105,7 @@ async function parseImport(path, file, user_id) {
 
     // парсим и пишем таблицу товаров
     logger.info('parser/parseML.js - parseImport ' + ' - obj_product');
-    let obj_product = await findProduct(obj, res_record.registrator.id);
+    let obj_product = await findProduct(tx, obj, res_record.registrator.id);
     writeLog('products_parsing.txt', JSON.stringify(obj_product));
 
     const obj_product_without_images_rec = structuredClone(obj_product.record)
@@ -112,24 +113,25 @@ async function parseImport(path, file, user_id) {
     obj_product_without_images_rec.forEach(element => {
         delete element.images;
     });
-    const res_record_product = await recordDB('array', 'product', obj_product_without_images_rec, res_record.registrator.id);
+    const res_record_product = await recordDB(tx, 'array', 'product', obj_product_without_images_rec, res_record.registrator.id);
     const obj_product_without_images_upd = JSON.parse(JSON.stringify(obj_product.update)); // создаем копию массива товаров и убираем картинки, т.к. их нет в таблице product
     if (obj_product_without_images_upd.length > 0) {
         for (const element of obj_product_without_images_upd) {
             delete element.images;
-            const res_update_product = await updateDB('object', 'product', element, { id_1c: element.id_1c }, res_record.registrator.id);
+            const res_update_product = await updateDB(tx, 'object', 'product', element, { id_1c: element.id_1c }, res_record.registrator.id);
         };
     };
 
 
     // создаем объект для таблицы картинок и пишем в БД 
-    obj_product = await findDB('product', '', '', ''); // нужна уже записанная таблица продуктов из базы чтобы получить id их записей
-    const obj_images = await findImages(obj_product, res_record.registrator.id);
+    //obj_product = await findDB(tx, 'product', '', '', ''); // нужна уже записанная таблица продуктов из базы чтобы получить id их записей
+    obj_product = obj_product.update.concat(obj_product.record); // соединяем 2 массива для записи и обновления 
+    const obj_images = await findImages(tx, obj_product, res_record.registrator.id);
     //const res_record_images = await recordDB('array', 'image_registry', obj_images.record, res_record.registrator.id);
-    const res_record_images = await recordDB('array', 'image_registry', obj_images.record, res_record.registrator.id);
+    const res_record_images = await recordDB(tx, 'array', 'image_registry', obj_images.record, res_record.registrator.id);
     if (obj_images.update.length > 0) {
         for (const element of obj_images.update) {
-            const res_update_images = await updateDB('object', 'image_registry', element, { name: element.name }, res_record.registrator.id);
+            const res_update_images = await updateDB(tx, 'object', 'image_registry', element, { name: element.name }, res_record.registrator.id);
         }
     }
 
@@ -140,11 +142,12 @@ async function parseImport(path, file, user_id) {
 /**
  * парсим offers0_1.xml и записываем в базу
  * @function
+ * @param {function} tx - экземпляр Призма для записи транзакций
  * @param {string} path - путь до файла без имени файла
  * @param {string} file - полный путь до файла
  * @param {number} user_id - id юзера, под которым пишется регистратор
  */
-async function parseOffers(path, file, user_id) {
+async function parseOffers(tx, path, file, user_id) {
     logger.info('parser/parseML.js - parseOffers ' + 'begin ' + file);
     const xml = await fs.readFile(file);
     let result = convert.xml2json(xml);
@@ -157,29 +160,32 @@ async function parseOffers(path, file, user_id) {
 
     logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
     const res_record = {};
-    res_record.registrator = await recordDB('object', 'registrator', obj_registrator);
+    res_record.registrator = await recordDB(tx, 'object', 'registrator', obj_registrator);
 
     logger.info('parser/parseML.js - parseOffers ' + ' - prices');
     const obj_prices = findPrices(obj, 'ПакетПредложений', 'ТипыЦен', res_record.registrator.id);
-    await recordDB('array', 'price_vid', obj_prices, res_record.registrator.id);
+    await recordDB(tx, 'array', 'price_vid', obj_prices, res_record.registrator.id);
     //console.log(obj_prices);
 
     logger.info('parser/parseML.js - parseOffers ' + ' - stores');
     const obj_stores = findFolder(obj, 'ПакетПредложений', 'Склады', res_record.registrator.id);
-    await recordDB('array', 'store', obj_stores, res_record.registrator.id);
+    await recordDB(tx, 'array', 'store', obj_stores, res_record.registrator.id);
     //await recordDB('array', 'price_vid', obj_prices, res_record.registrator.id);
     //console.log(obj_stores);
 
     logger.info('parser/parseML.js - parseOffers ' + ' - size');
     const obj_sizes = findSizes(obj, 'Свойства', 'Размер2');
-    await recordDB('array', 'size', obj_sizes, res_record.registrator.id);
+    await recordDB(tx, 'array', 'size', obj_sizes, res_record.registrator.id);
 
     logger.info('parser/parseML.js - parseOffers ' + ' - offers');
-    const obj_offers = await findOffer(obj);
+    const obj_offers = await findOffer(tx, obj);
     //console.log(obj_offers);
-    await recordDB('array', 'price_registry', obj_offers.price, res_record.registrator.id);
-    await recordDB('array', 'qnt_registry', obj_offers.qnt, res_record.registrator.id);
-    await recordDB('array', 'qnt_price_registry', obj_offers.qnt_price, res_record.registrator.id);
+
+    
+        await recordDB(tx,'array', 'price_registry', obj_offers.price, res_record.registrator.id);
+        await recordDB(tx,'array', 'qnt_registry', obj_offers.qnt, res_record.registrator.id);
+        await recordDB(tx,'array', 'qnt_price_registry', obj_offers.qnt_price, res_record.registrator.id);
+
     return;
     // 
 
@@ -199,8 +205,10 @@ async function main(user_id) {
         logger.info('parser/parseML.js - main ' + 'moveUpload undefined');
         return;
     }
-    await parseImport(newFolder, newFolder + '/import0_1.xml', user_id);
-    await parseOffers(newFolder, newFolder + '/offers0_1.xml', user_id);
+    await prismaI.$transaction(async (tx) => {
+        await parseImport(tx, newFolder, newFolder + '/import0_1.xml', user_id);
+        await parseOffers(tx, newFolder, newFolder + '/offers0_1.xml', user_id);
+    });
 
     await prismaI.$disconnect();
     logger.info('parser/parseML.js - main ' + 'end ');

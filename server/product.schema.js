@@ -82,6 +82,10 @@ export const getProductsSchema = {
 
                                         image_active_path: { type: "string" },
 
+                                        discount_percent: { type: "number" },
+                                        discount_begin: { type: "string", format: "date-time" },
+                                        discount_end: { type: "string", format: "date-time" },                                        
+
                                         qnt_price: {
                                             type: "array", items:
                                             {

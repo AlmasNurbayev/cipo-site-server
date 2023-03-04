@@ -8,13 +8,14 @@ import { formatISO } from 'date-fns';
 /**
  * записываем новые данные в таблицу БД
  * @function
+ * @param {function} tx - экземпляр Призма для записи транзакций
  * @param {string} type - тип данных, одиночный объект (object) или массив (array)
  * @param {string} table - имя таблицы
  * @param {object} obj - объект с данными
  * @param {number} registratorID - ID регистратора, добавляется в запись в случае записи массива
  * @return {object | undefined} возвращает объект с количеством вставленных записей или undefined
  */
-export async function recordDB(type, table, obj, registratorID) {
+export async function recordDB(tx, type, table, obj, registratorID) {
     logger.info('parser/recordDB.js - starting ' + type + ' / ' + table +  ' / registrator id: ' + registratorID);
 
     const currentDate = formatISO(Date.now(), { representation: 'complete' });
@@ -23,7 +24,7 @@ export async function recordDB(type, table, obj, registratorID) {
         //console.log(obj);
         obj.create_date = currentDate;
         try {
-            const res = await prismaI[table].create({
+            const res = await tx[table].create({
                 data: obj
             }
             )
@@ -44,7 +45,7 @@ export async function recordDB(type, table, obj, registratorID) {
             });
 
             try {
-                const res = await prismaI[table].createMany({
+                const res = await tx[table].createMany({
                     data: obj,
                     skipDuplicates: true
                 }

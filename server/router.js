@@ -8,7 +8,7 @@ import swaggerUi from 'swagger-ui-express'
 import { getProductsSchema2 } from './product.schema2.js';
 
 
-export default function initRouterApi() {
+export function initRouterApi() {
     const router = new Router();
     router.get('/product/:id', getProduct); 
     router.get('/products', getProducts);
@@ -20,6 +20,13 @@ export default function initRouterApi() {
 
 
     return router; 
+}
+
+export function initRouterStatic() {
+  
+
+
+
 }
  
 

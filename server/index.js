@@ -3,7 +3,7 @@
 import express from "express";
 import { logger } from "../utils/logger.js";
 import dotenv from 'dotenv';
-import initRouterApi from "./router.js";
+import {initRouterApi, initRouterStatic} from "./router.js";
 
 dotenv.config();
 
@@ -13,7 +13,7 @@ const app = express();
 
 app.use(express.json());
 app.use('/api', initRouterApi());
-app.use('/static', initRouterStatic());
+//app.use('/static', initRouterStatic());
 
 app.listen(port, ()=> {
     console.log('start express on port: ' + port);

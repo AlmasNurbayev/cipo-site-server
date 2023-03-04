@@ -5,27 +5,46 @@ import json2xls from 'json2xls';
 import fs from 'fs'
 import e from "express";
 
+/**
+ * получаем из базы последний номер регистратора, который есть в регистре цен и остатков 
+ * @function
+  * @return {number} возвращаем id регистратора, который последний записывал в регистр цен и остатков
+ */
+
 async function getLastRegistrator() {
+    logger.info('server/product.service.js - getLastRegistrator start');
+    let registrator_id = undefined;
+    
+    try {
+        //const res = await prismaI.qnt_price_registry.findMany();
+    
 
-
+        logger.info('server/product.service.js - getLastRegistrator end');
+        return registrator_id;
+    }
+    catch (error) {
+        console.log('server/product.service.js - getLastRegistrator ' + error.stack);
+        logger.error('server/product.service.js - getLastRegistrator ' + error.stack);
+    }
 }
 
 
-// import * as XLSX from "xlsx"; // устанавливать через CDN https://docs.sheetjs.com/docs/getting-started/installation/nodejs
-// import * as cptable from "xlsx/dist/cpexcel.full.mjs";
-// import * as fs from 'fs';
-
+/**
+ * получаем из базы выборку товаров и их цен/размеров
+ * @function
+ * @param {string} parameters - объект со значениями фильтра согласно схеме in query
+ * @return {array} возвращаем массив объектов (товаров) с реквизитами согласно схеме
+ */
 export async function getProductsService(parameters) {
-
+    logger.info('server/product.service.js - getProductsService start');
     let where = {};
     for (const key in parameters) {
-        //        if key === 'produ'
         where[key] = parameters[key];
     };
     let query = {
         where: where
     };
-    console.log(JSON.stringify(query));
+    console.log('get query product ' + JSON.stringify(query));
 
     try {
         let minprice = undefined;
@@ -94,7 +113,7 @@ export async function getProductsService(parameters) {
                     sum: { lte: maxprice, gte: minprice }
                 }
             })
-
+            //console.log(res_qnt_price);
         // приводим массив данных к формату схемы    
         let qnt_price_group = []; 
         if (res_qnt_price.length > 0) { 
@@ -121,6 +140,7 @@ export async function getProductsService(parameters) {
                     element_group.description = element.product.description;
                     element_group.material_podoshva = element.product.material_podoshva;
                     element_group.material_up = element.product.material_up;
+                    element_group.product_group_name = element.product_group.name_1c;
                     element_group.material_inside = element.product.material_inside;
                     //element_group.image_registry = element.product.image_registry;
                     if (element.product.image_registry) {
@@ -131,9 +151,6 @@ export async function getProductsService(parameters) {
                         size: element.size_name_1c,
                         qnt: Number(element.qnt),
                         sum: Number(element.sum),
-                        discount_percent: element.discount_percent,
-                        discount_begin: element.discount_begin,
-                        discount_end: element.discount_end,
                         store_id: element.store_id,
 //                        store: element.store_id,
                     })                    
@@ -153,10 +170,10 @@ export async function getProductsService(parameters) {
 
         var xls = json2xls(res_qnt_price);
         fs.writeFileSync('logs/res_qnt_price.xlsx', xls, 'binary');
-
+        logger.info('server/product.service.js - getProductsService ended');
         return qnt_price_group;
     } catch (error) {
-        logger.error('server/product.service.js' + error.stack);
+        logger.error('server/product.service.js - getProductsService ' + error.stack);
         console.log(error.stack);
     }
 
