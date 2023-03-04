@@ -226,6 +226,8 @@ model qnt_price_registry {
     id Int @id @default(autoincrement())
     sum Decimal
     qnt Decimal
+    size_name_1c String
+    product_name String
     operation_date DateTime @db.Timestamptz
     discount_percent Decimal?
     discount_begin DateTime? @db.Timestamptz

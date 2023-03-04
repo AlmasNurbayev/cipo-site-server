@@ -28,11 +28,13 @@ export async function findOffer(obj) {
         //console.log(size_all);
 
         for (const element of root.elements) { // цикл по предложениям
-
+            let product_id_1c = undefined;
             let product_id = undefined;
             let product_group_id = undefined;
             let size_id = undefined;
             let artikul = undefined;
+            let product_name = undefined;
+            let size_name_1c = undefined;
             let price = [];
             let qnt = [];
             let qnt_price = [];
@@ -43,16 +45,22 @@ export async function findOffer(obj) {
 
                 let data = {};
                 //qnt, operation_date, store_id, product_id, size_id
+                if (element2.name === 'Ид') {
+                    if (element2.elements[0].text) {
+                        const product_id_1c_text = element2.elements[0].text.split('#')[0];
+                        const product_id_1c_find = product_all.find(e => e.id_1c === product_id_1c_text);
+                        if (product_id_1c_find) {
+                            product_id_1c = product_id_1c_find.id_1c;
+                            product_id = product_id_1c_find.id;
+                            product_group_id = product_id_1c_find.product_group_id;
+                            product_name = product_id_1c_find.name_1c;
+                        }
+                    }
+                }
+
                 if (element2.name === 'Артикул') {
                     if (element2.elements[0].text) {
-                        const artikul0 = element2.elements[0].text;
-                        const artikul_find = product_all.find(e => e.artikul === artikul0);
-                        if (artikul_find) {
-                            product_id = artikul_find.id;
-                            artikul = artikul0;
-                            product_group_id = artikul_find.product_group_id;
-                            //console.log('========== ' + artikul);
-                        }
+                        artikul = element2.elements[0].text;
                     }
                 }
                 if (element2.name === 'ХарактеристикиТовара') {
@@ -61,6 +69,7 @@ export async function findOffer(obj) {
                         const size_find = size_all.find(e => e.name_1c === size_text);
                         if (size_find) {
                             size_id = size_find.id;
+                            size_name_1c = size_find.name_1c
                         }
                     }
                 }
@@ -119,6 +128,8 @@ export async function findOffer(obj) {
                                 };
                                 Object.assign(data, res_price.at(-1), data2);
                                 data.product_group_id = product_group_id;
+                                data.size_name_1c = size_name_1c;
+                                data.product_name = product_name;
                                 res_qnt.push(data2);
                                 qnt.push(data2);
                                 res_qnt_price.push(data);

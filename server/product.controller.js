@@ -35,15 +35,17 @@ export async function getProducts(request, responce) {
         price = price.map((x) => { return parseInt(x) });
     }
 
-    console.log(await getProductsService({size: size, product_group: product_group, brend: brend, price: price}));
+    const res = await getProductsService({size: size, product_group: product_group, brend: brend, price: price});
 
     // const input_schema = getProductsSchema.schema.paths["/api/product"].get.parameters;
     // const res = checkAJV(input_schema, [size, product_group, brend, price]);
     // console.log(res);
 
 
-    responce.status(200).json({size, product_group, brend, price});
+    responce.status(200).json(res);
 }
 
+export async function getProductsFilters() {
 
+}
 

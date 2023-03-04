@@ -88,7 +88,10 @@ export const getProductsSchema = {
                                                 type: "object", properties: {
                                                     size: { type: "string" },
                                                     price: { type: "number" },
-                                                    qnt: { type: "number" }
+                                                    qnt: { type: "number" },
+                                                    store_id: {type: "array", items: {
+                                                       type: 'number'      
+                                                    }}
                                                 },
 
                                             },
