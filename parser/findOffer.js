@@ -125,7 +125,7 @@ export async function findOffer(tx, obj) {
                                     store_id: id,
                                     //name: name,
                                     //ИдСклада: element2.attributes.ИдСклада,
-                                    qnt: element2.attributes.КоличествоНаСкладе,
+                                    qnt: Number(element2.attributes.КоличествоНаСкладе),
                                 };
                                 Object.assign(data, res_price.at(-1), data2);
                                 data.product_group_id = product_group_id;

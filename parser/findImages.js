@@ -26,7 +26,7 @@ export async function findImages(tx, obj) {
         if (element.images != undefined) {
             
             const product_id = product_all.find(e => e.id_1c === element.id_1c); // находим сопоставимое id_1с продукта и по нему берем id продукта
-            console.log(product_id);
+            //console.log(product_id);
             if (!product_id) {continue;} 
             for (const element2  of element.images) {    // цикл по картинкам
                  const compare = image_registry_all.find(e => e.name === element2.name)  // ищем в базе такое же имя картинки

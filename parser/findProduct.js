@@ -48,6 +48,8 @@ export async function findProduct(tx, obj, registrator_id) {
             let material_up = undefined;
             let material_inside = undefined;
             let material_podoshva = undefined;
+            let sex = undefined;
+            let main_color = undefined;
             const images = [];
 
             for (const element_2 of element.elements) {   // цикл по ключам
@@ -132,7 +134,7 @@ export async function findProduct(tx, obj, registrator_id) {
                         product_group_id = res_sv.group;
                         //product_group_name = res_sv.name;
                         // if (Array.isArray(res_sv.desc)) {
-                        ({ material_up, material_inside, material_podoshva } = res_sv.desc); // т.к. эти переменные уже объявлены, то всю деструктуризацию нужно обернуть в скобки
+                        ({ material_up, material_inside, material_podoshva, sex, main_color } = res_sv.desc); // т.к. эти переменные уже объявлены, то всю деструктуризацию нужно обернуть в скобки
                         // console.log(material_up, material_inside, material_podoshva);
                         // }
                     }
@@ -161,6 +163,8 @@ export async function findProduct(tx, obj, registrator_id) {
                 material_up: material_up,
                 material_inside: material_inside,
                 material_podoshva: material_podoshva,
+                sex: Number(sex),
+                main_color: main_color,
                 product_vid_id: product_vid_id, 
             }
             let duplicate = product_all.find(e => e.id_1c === id_1c);
@@ -195,11 +199,12 @@ function findProductSv(root, product_group_all, product_desc_mapping_all) {
 
     const res = {};
     res.desc = {};
-    
+
+    console.log('===================');
+    console.log(JSON.stringify(root));
+
 
     root.forEach(element => {
-        //console.log('===================');
-        //  console.log(element);
         //  console.log('------------');
         //console.log(element.elements[0].elements[0].text);
         //console.log(element.elements[1].elements[0].text);

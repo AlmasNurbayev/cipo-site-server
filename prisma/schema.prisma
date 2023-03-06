@@ -34,6 +34,7 @@ model product { // Товары
     material_up String?
     material_inside String?
     material_podoshva String?
+    main_color String?
     description String? // общее описание, например "густой мех, маломерят"
     sex Int? // пол обуви, 1 - мальчик, 2 - девочка, 3 - унисекс
     product_folder String? // папка элемента из справочника НСИ 
@@ -185,7 +186,7 @@ model country { // справочник страна производства
 
 model price_registry { // регистр цен
     id Int @id @default(autoincrement())
-    sum Decimal
+    sum Float
     operation_date DateTime @db.Timestamptz
     discount_percent Decimal?
     discount_begin DateTime? @db.Timestamptz
@@ -206,7 +207,7 @@ model price_registry { // регистр цен
 
 model qnt_registry { // регистр остатков
     id Int @id @default(autoincrement())
-    qnt Decimal
+    qnt Float
     operation_date DateTime @db.Timestamptz
     // foreign keys
     store store @relation(fields: [store_id], references: [id])
@@ -224,8 +225,8 @@ model qnt_registry { // регистр остатков
 
 model qnt_price_registry {
     id Int @id @default(autoincrement())
-    sum Decimal
-    qnt Decimal
+    sum Float
+    qnt Float
     size_name_1c String
     product_name String
     operation_date DateTime @db.Timestamptz
@@ -249,7 +250,8 @@ model qnt_price_registry {
     create_date DateTime? @db.Timestamptz
     changed_date DateTime @updatedAt @db.Timestamptz
 
-
+    //@@index([registrator_id, product_group, product_id, size_id, sum])
+    @@index([registrator_id])
 }
 
 model image_registry { // регистр изображений товаров

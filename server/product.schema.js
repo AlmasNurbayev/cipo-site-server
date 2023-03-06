@@ -58,7 +58,7 @@ export const getProductsSchema = {
                     ],
                     responses: {
                         200: {
-                            description: "need JWT admin token",
+                            description: "array of products",
                             schema: {
                                 type: "array",
                                 items: {
@@ -84,7 +84,7 @@ export const getProductsSchema = {
 
                                         discount_percent: { type: "number" },
                                         discount_begin: { type: "string", format: "date-time" },
-                                        discount_end: { type: "string", format: "date-time" },                                        
+                                        discount_end: { type: "string", format: "date-time" },
 
                                         qnt_price: {
                                             type: "array", items:
@@ -93,9 +93,11 @@ export const getProductsSchema = {
                                                     size: { type: "string" },
                                                     price: { type: "number" },
                                                     qnt: { type: "number" },
-                                                    store_id: {type: "array", items: {
-                                                       type: 'number'      
-                                                    }}
+                                                    store_id: {
+                                                        type: "array", items: {
+                                                            type: 'number'
+                                                        }
+                                                    }
                                                 },
 
                                             },
@@ -135,8 +137,177 @@ export const getProductsSchema = {
                     error: { type: "string" },
                     message: { type: "string" },
                 }
+            },
+            "/api/product:id": {
+                get: {
+                    parameters: [
+                        {
+                            name: "token",
+                            in: "header",
+                            description: "token to be passed as a header",
+                            "required": true,
+                            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5c..."
+                        },
+                        {
+                            name: "id",
+                            description: "id of product",
+                            in: "query",
+                            type: "number",
+                            required: true,
+                            example: "5412"
+                        },
+                    ],
+                    responses: {
+                        200: {
+                            description: "object about product",
+                            schema: {
+                                type: "object", properties: {
+                                    date: { type: "string", format: "date-time" },
+                                    product_id: { type: "number" },
+                                    product_name: { type: "string" },
+                                    product_description: { type: "string" },
+
+                                    product_material_podoshva: { type: "string" },
+                                    product_material_up: { type: "string" },
+                                    product_material_inside: { type: "string" },
+
+                                    product_brend_id: { type: "number" },
+                                    product_brend_name: { type: "string" },
+
+                                    artikul: { type: "string" },
+                                    brend: { type: "string" },
+                                    product_group_id: { type: "number" },
+                                    product_group_name: { type: "string" },
+
+                                    image_active_path: { type: "string" },
+
+                                    discount_percent: { type: "number" },
+                                    discount_begin: { type: "string", format: "date-time" },
+                                    discount_end: { type: "string", format: "date-time" },
+
+                                    qnt_price: {
+                                        type: "array", items:
+                                        {
+                                            type: "object", properties: {
+                                                size: { type: "string" },
+                                                price: { type: "number" },
+                                                qnt: { type: "number" },
+                                                store_id: {
+                                                    type: "array", items: {
+                                                        type: 'number'
+                                                    }
+                                                }
+                                            },
+
+                                        },
+                                    },
+
+                                },
+                            },
+                        },
+
+                        400: {
+                            description: "error response",
+                            type: "object",
+                            properties: {
+                                error: { type: "string" },
+                                message: { type: "string" },
+                            }
+                        },
+                        401: {
+                            description: "Unauthorized",
+                            type: "object",
+                            properties: {
+                                error: { type: "string" },
+                                message: { type: "string" },
+                            }
+                        },
+                        500: {
+                            description: "unknown error",
+                            type: "object",
+                            properties: {
+                                error: { type: "string" },
+                                message: { type: "string" },
+                            }
+                        }
+
+                    }
+                }
+            },
+            "/api/productsFilter": {
+                get: {
+                    parameters: [
+                        {
+                            name: "token",
+                            in: "header",
+                            description: "token to be passed as a header",
+                            "required": true,
+                            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5c..."
+                        },
+                    ],
+                    responses: {
+                        200: {
+                            description: "",
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    size: {
+                                        type: "array", items: {
+                                            id: { type: "number" },
+                                            name_1c: { type: "string" },
+                                        }
+                                    },
+                                    product_group: {
+                                        type: "array", items: {
+                                            id: { type: "number" },
+                                            name_1c: { type: "string" },
+                                        }
+                                    },
+                                    brend: {
+                                        type: "array", items: {
+                                            id: { type: "number" },
+                                            name_1c: { type: "string" },
+                                        }
+                                    },
+                                    store: {
+                                        type: "array", items: {
+                                            id: { type: "number" },
+                                            name_1c: { type: "string" },
+                                        }
+                                    },                                    
+
+                                },
+                            },
+                        },
+
+                        400: {
+                            description: "error response",
+                            type: "object",
+                            properties: {
+                                error: { type: "string" },
+                                message: { type: "string" },
+                            }
+                        },
+                        401: {
+                            description: "Unauthorized",
+                            type: "object",
+                            properties: {
+                                error: { type: "string" },
+                                message: { type: "string" },
+                            }
+                        },
+                        500: {
+                            description: "unknown error",
+                            type: "object",
+                            properties: {
+                                error: { type: "string" },
+                                message: { type: "string" },
+                            }
+                        }
+
+                    }
+                }
             }
         }
     }
 }
- 

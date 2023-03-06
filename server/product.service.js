@@ -1,24 +1,40 @@
 import { prismaI } from "../utils/prisma.js";
 import { logger, writeLog } from "../utils/logger.js";
 import { groupAndSum } from "./utils.js";
+import { getNames } from "./utils.js";
 import json2xls from 'json2xls';
 import fs from 'fs'
 import e from "express";
 
 /**
- * получаем из базы последний номер регистратора, который есть в регистре цен и остатков 
+ * получаем из базы последний номер регистратора, с которым в регистре есть остатки и цены
  * @function
-  * @return {number} возвращаем id регистратора, который последний записывал в регистр цен и остатков
+  * @return {number} возвращаем id регистратора
  */
-
 async function getLastRegistrator() {
     logger.info('server/product.service.js - getLastRegistrator start');
     let registrator_id = undefined;
-    
-    try {
-        //const res = await prismaI.qnt_price_registry.findMany();
-    
 
+    try {
+        const res = await prismaI.qnt_price_registry.groupBy({
+            by: ['registrator_id'],
+            _sum: {
+                qnt: true,
+                sum: true
+            },
+            orderBy: {
+                registrator_id: 'desc',
+            },
+        });
+        if (res.length > 0) {
+            for (const element of res) {
+                if (element._sum.qnt > 0 && element._sum.sum > 0) {
+                    registrator_id = element.registrator_id;
+                    break;
+                }
+            };
+        };
+        //console.log(res);
         logger.info('server/product.service.js - getLastRegistrator end');
         return registrator_id;
     }
@@ -46,18 +62,20 @@ export async function getProductsService(parameters) {
     };
     console.log('get query product ' + JSON.stringify(query));
 
+    const registrator_id = await getLastRegistrator();
+
     try {
         let minprice = undefined;
         let maxprice = undefined;
-        let res_size = undefined;
-        let res_product_group = undefined;
+        // let res_size = undefined;
+        // let res_product_group = undefined;
         let res_qnt_price = undefined;
-        if (parameters.size) {
-            res_size = await prismaI.size.findMany({ where: { name_1c: { in: parameters.size }, }, })
-        }
-        if (parameters.product_group) {
-            res_product_group = await prismaI.product_group.findMany({ where: { id: { in: parameters.product_group }, }, })
-        }
+        // if (parameters.size) {
+        //     res_size = await prismaI.size.findMany({ where: { name_1c: { in: parameters.size }, }, })
+        // }
+        // if (parameters.product_group) {
+        //     res_product_group = await prismaI.product_group.findMany({ where: { id: { in: parameters.product_group }, }, })
+        // }
         if (parameters.price) {
             if (parameters.price[0] && parameters.price[1]) {
                 minprice = parameters.price[0];
@@ -87,6 +105,7 @@ export async function getProductsService(parameters) {
                             material_up: true,
                             material_inside: true,
                             create_date: true,
+                            sex: true,
                             image_registry: {
                                 select: {
                                     id: true,
@@ -109,14 +128,15 @@ export async function getProductsService(parameters) {
                 where:
                 {
                     product_group_id: { in: parameters.product_group },
-                    size_name_1c: { in: parameters.size },
-                    sum: { lte: maxprice, gte: minprice }
+                    size_id: { in: parameters.size },
+                    sum: { lte: maxprice, gte: minprice },
+                    registrator_id: registrator_id
                 }
             })
-            //console.log(res_qnt_price);
+        //console.log(res_qnt_price);
         // приводим массив данных к формату схемы    
-        let qnt_price_group = []; 
-        if (res_qnt_price.length > 0) { 
+        let qnt_price_group = [];
+        if (res_qnt_price.length > 0) {
 
             let keys = Object.keys(res_qnt_price[0]); // удаляем повторяющиеся ключи
             keys = keys.filter(e => {
@@ -140,6 +160,7 @@ export async function getProductsService(parameters) {
                     element_group.description = element.product.description;
                     element_group.material_podoshva = element.product.material_podoshva;
                     element_group.material_up = element.product.material_up;
+                    element_group.sex = element.product.sex;
                     element_group.product_group_name = element.product_group.name_1c;
                     element_group.material_inside = element.product.material_inside;
                     //element_group.image_registry = element.product.image_registry;
@@ -152,19 +173,17 @@ export async function getProductsService(parameters) {
                         qnt: Number(element.qnt),
                         sum: Number(element.sum),
                         store_id: element.store_id,
-//                        store: element.store_id,
-                    })                    
+                        //                        store: element.store_id,
+                    })
                 }
             }
             for (const element_group of qnt_price_group) {
                 if (element_group.qnt_price.length > 0) { // во вложенном объекте с ценами группируем повторяющиеся размеры одного продукта
                     element_group.qnt_price = groupAndSum(element_group.qnt_price, ['size', 'sum'], ['qnt'], ['store_id'])
                 }
-            }    
+            }
 
         }
-
-
 
         writeLog('res_qnt_price.txt', JSON.stringify(res_qnt_price));
 
@@ -179,3 +198,122 @@ export async function getProductsService(parameters) {
 
 }
 
+/**
+ * получаем из базы выборку 4-х справочников, где есть остатки. Необходимо для создания фильтров на фронте
+ * @function
+ * @return {object} возвращаем объект с массивами size, brend, товарными группами, ценами
+ */
+export async function getProductsFiltersService() {
+    logger.info('server/product.service.js - getProductsFilters start');
+    let obj_all = {};
+    const registrator_id = await getLastRegistrator();
+
+    if (!registrator_id) {
+        logger.info('server/product.service.js - getProductsFilters ended not registrator');
+        return obj_all;
+    }
+
+    async function getTables(field) { // возвращает сгруппированнные записи регистра по заданному полю
+        try {
+            const res = await prismaI.qnt_price_registry.groupBy({
+                by: [field],
+                orderBy: {
+                    [field]: 'asc',
+                },
+                where: {
+                    registrator_id: {
+                        equals: registrator_id
+                    },
+                    qnt: {
+                        gt: 0,
+                    },
+                    sum: {
+                        gt: 0,
+                    }
+                }
+            });
+            return res;
+        }
+        catch (error) {
+            console.log('server/product.service.js - getProductsFilters ' + error.stack);
+            logger.error('server/product.service.js - getProductsFilters ' + error.stack);
+        }
+    };
+
+    let res_size = await getTables('size_id');
+    res_size = res_size.map(e => {
+        return e.size_id;
+    });
+    obj_all.size = await getNames('size', res_size, 'name_1c');
+
+    let res_product_group = await getTables('product_group_id');
+    res_product_group = res_product_group.map(e => {
+        return e.product_group_id;
+    });
+    obj_all.product_group = await getNames('product_group', res_product_group, 'name_1c');
+
+    let res_brend = await getTables('product_id');
+    res_brend = res_brend.map(e => {
+        return e.product_id;
+    });
+    obj_all.brend = await getNames('brend', res_brend, 'name_1c');
+
+    let res_store = await getTables('store_id');
+    res_store = res_store.map(e => {
+        return e.store_id;
+    });
+    obj_all.store = await getNames('store', res_store, 'name_1c');
+
+
+    logger.info('server/product.service.js - getProductsFilters end');
+    return obj_all;
+
+}
+
+
+export async function getProductService(product_id) {
+    const res = undefined;
+    try {
+        const res = await prismaI.product.findUnique({
+            where: {
+                id: product_id,
+            },
+            include: {
+                product_group: {
+                    select: {
+                        id: true,
+                        name_1c: true,
+                    }
+                },
+                image_registry: {
+
+                },
+                qnt_price_registry: {
+                    select: {
+                        size_id: true,
+                        size_name_1c: true,
+                        qnt: true,
+                        sum: true,
+                        store_id: true,
+                    },
+                    where: {
+                        registrator_id: await getLastRegistrator()
+                    }
+                },
+            },
+        });
+        if (res !== null) {
+            if (res.qnt_price_registry.length > 0) {
+                res.qnt_price_registry_group = groupAndSum(res.qnt_price_registry, ['size_id', 'side_name_id', 'sum'], ['qnt'], ['store_id']);
+            }
+        }
+        writeLog('product'+product_id+'.txt', JSON.stringify(res));
+        return res;
+    }
+    catch (error) {
+        console.log('server/product.service.js - getProductsFilters ' + error.stack);
+        logger.error('server/product.service.js - getProductsFilters ' + error.stack);
+    }
+
+    return res;
+}
