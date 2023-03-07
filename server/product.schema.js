@@ -53,8 +53,30 @@ export const getProductsSchema = {
                             required: false,
                             example: "10000, 20000"
                         },
-
-
+                        {
+                            name: "take",
+                            description: "count of records ",
+                            in: "query",
+                            type: "number",
+                            required: false,
+                            example: "20"
+                        },
+                        {
+                            name: "skip",
+                            description: "skip of records ",
+                            in: "query",
+                            type: "number",
+                            required: false,
+                            example: "1"
+                        },
+                        {
+                            name: "sort",
+                            description: "sort and order, possible: id, price",
+                            in: "query",
+                            type: "string",
+                            required: false,
+                            example: "price-desc"
+                        },                        
                     ],
                     responses: {
                         200: {

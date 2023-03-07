@@ -1,7 +1,7 @@
 'useStrict';
 
 import Router from 'express';
-import { getProduct, getProducts, getProductsFilter } from './product.controller.js';
+import { getProduct, getProducts, getProductsFilter, getProductsNews } from './product.controller.js';
 import { postOrder } from './order.controller.js';
 import {getProductsSchema} from './product.schema.js';
 import swaggerUi from 'swagger-ui-express'
@@ -12,6 +12,7 @@ export function initRouterApi() {
     const router = new Router();
     router.get('/product', getProduct); 
     router.get('/products', getProducts);
+    router.get('/productsNews', getProductsNews);
     router.get('/productsFilter', getProductsFilter);
     router.post('/order', postOrder); 
 
