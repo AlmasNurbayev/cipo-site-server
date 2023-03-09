@@ -76,7 +76,7 @@ export const getProductsSchema = {
                             type: "string",
                             required: false,
                             example: "price-desc"
-                        },                        
+                        },
                     ],
                     responses: {
                         200: {
@@ -175,9 +175,17 @@ export const getProductsSchema = {
                             description: "id of product",
                             in: "query",
                             type: "number",
-                            required: true,
+                            required: false,
                             example: "5412"
                         },
+                        {
+                            name: "name_1c",
+                            description: "name of product",
+                            in: "query",
+                            type: "string",
+                            required: false,
+                            example: "Cipo Ботинки белый 9920-814"
+                        },                        
                     ],
                     responses: {
                         200: {
@@ -201,60 +209,88 @@ export const getProductsSchema = {
                                     product_group_id: { type: "number" },
                                     product_group_name: { type: "string" },
 
-                                    image_active_path: { type: "string" },
-
                                     discount_percent: { type: "number" },
                                     discount_begin: { type: "string", format: "date-time" },
                                     discount_end: { type: "string", format: "date-time" },
 
-                                    qnt_price: {
+                                    image_registry: {
                                         type: "array", items:
                                         {
                                             type: "object", properties: {
-                                                size: { type: "string" },
-                                                price: { type: "number" },
-                                                qnt: { type: "number" },
-                                                store_id: {
-                                                    type: "array", items: {
-                                                        type: 'number'
-                                                    }
-                                                }
+                                                id: { type: "number" },
+                                                full_name: { type: "string" },
+                                                name: { type: "string" },
+                                                path: { type: "string" },
+                                                size: { type: "number" },
+                                                operation_date: { type: "string", format: "date-time" },
+                                                main: { type: "boolean" },
+                                                main_change_date: { type: "string", format: "date-time" },
+                                                active: { type: "boolean" },
+                                                active_change_date: { type: "string", format: "date-time" },
+                                                product_id: { type: "number" },
+                                                registrator_id: { type: "number" },
+                                                create_date: { type: "string", format: "date-time" },
+                                                changed_date: { type: "string", format: "date-time" },
                                             },
-
                                         },
                                     },
-
+                                    qnt_price_registry: {
+                                        type: "array", items:
+                                        {
+                                            type: "object", properties: {
+                                                size_id: { type: "number" },
+                                                size_name_1c: { type: "string" },
+                                                sum: { type: "number" },
+                                                qnt: { type: "number" },
+                                                store_id: { type: 'number' }
+                                            }
+                                        },
+                                    },
+                                    qnt_price_registry_group: {
+                                        type: "array", items:
+                                        {
+                                            type: "object", properties: {
+                                                size_id: { type: "number" },
+                                                sum: { type: "number" },
+                                                qnt: { type: "number" },
+                                                store_id: {
+                                                    type: 'array', items: {
+                                                        type: "number"
+                                                    },
+                                                }
+                                            },
+                                        },
+                                    },
                                 },
                             },
                         },
+                    },
 
-                        400: {
-                            description: "error response",
-                            type: "object",
-                            properties: {
-                                error: { type: "string" },
-                                message: { type: "string" },
-                            }
-                        },
-                        401: {
-                            description: "Unauthorized",
-                            type: "object",
-                            properties: {
-                                error: { type: "string" },
-                                message: { type: "string" },
-                            }
-                        },
-                        500: {
-                            description: "unknown error",
-                            type: "object",
-                            properties: {
-                                error: { type: "string" },
-                                message: { type: "string" },
-                            }
+                    400: {
+                        description: "error response",
+                        type: "object",
+                        properties: {
+                            error: { type: "string" },
+                            message: { type: "string" },
                         }
-
+                    },
+                    401: {
+                        description: "Unauthorized",
+                        type: "object",
+                        properties: {
+                            error: { type: "string" },
+                            message: { type: "string" },
+                        }
+                    },
+                    500: {
+                        description: "unknown error",
+                        type: "object",
+                        properties: {
+                            error: { type: "string" },
+                            message: { type: "string" },
+                        }
                     }
-                }
+                },
             },
             "/api/productsFilter": {
                 get: {
@@ -269,35 +305,42 @@ export const getProductsSchema = {
                     ],
                     responses: {
                         200: {
-                            description: "",
+                            description: "object - all lists for filters",
                             schema: {
                                 type: "object",
                                 properties: {
                                     size: {
                                         type: "array", items: {
-                                            id: { type: "number" },
-                                            name_1c: { type: "string" },
+                                            type: "object", properties: {
+                                                id: { type: "number" },
+                                                name_1c: { type: "string" },
+                                            }
                                         }
                                     },
                                     product_group: {
                                         type: "array", items: {
-                                            id: { type: "number" },
-                                            name_1c: { type: "string" },
+                                            type: "object", properties: {
+                                                id: { type: "number" },
+                                                name_1c: { type: "string" },
+                                            }
                                         }
                                     },
                                     brend: {
                                         type: "array", items: {
-                                            id: { type: "number" },
-                                            name_1c: { type: "string" },
+                                            type: "object", properties: {
+                                                id: { type: "number" },
+                                                name_1c: { type: "string" },
+                                            }
                                         }
                                     },
                                     store: {
                                         type: "array", items: {
-                                            id: { type: "number" },
-                                            name_1c: { type: "string" },
+                                            type: "object", properties: {
+                                                id: { type: "number" },
+                                                name_1c: { type: "string" },
+                                            }
                                         }
-                                    },                                    
-
+                                    },
                                 },
                             },
                         },
@@ -326,10 +369,10 @@ export const getProductsSchema = {
                                 message: { type: "string" },
                             }
                         }
-
                     }
                 }
             }
         }
     }
 }
+

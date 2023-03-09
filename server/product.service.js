@@ -113,20 +113,20 @@ export async function getProductsService(parameters) {
             query1.orderBy = {
                 [parameters.sort[0]]: parameters.sort[1]
             };
-        };        
+        };
         if (parameters.take) {
             query1.take = parameters.take;
         };
         if (parameters.skip) {
             query1.skip = parameters.skip;
-        };     
+        };
         query1.where.product_group_id = { in: parameters.product_group };
         query1.where.size_id = { in: parameters.size };
         query1.where.sum = { lte: maxprice, gte: minprice };
 
         let res1 = await prismaI.qnt_price_registry.groupBy(query1);
-        console.log(res1);
-        let res_id =[];
+        //console.log(res1);
+        let res_id = [];
         if (res1 !== null) {
             res_id = res1.map(e => {
                 return e.product_id;
@@ -172,14 +172,14 @@ export async function getProductsService(parameters) {
             where:
             {
                 registrator_id: registrator_id,
-                product_id: {in: res_id} 
+                product_id: { in: res_id }
             }
         };
         if (parameters.sort) {
             query2.orderBy = {
                 [parameters.sort[0]]: parameters.sort[1]
             };
-        };    
+        };
         res_qnt_price = await prismaI.qnt_price_registry.findMany(query2)
         //console.log(res_qnt_price);
         // приводим массив данных к формату схемы    
@@ -328,43 +328,59 @@ export async function getProductsFiltersService() {
  * @param {string} product_id - id товара
  * @return {array} возвращаем объект товара с реквизитами согласно схеме и его размеры/цены
  */
-export async function getProductService(product_id) {
-    const res = undefined;
-    try {
-        const res = await prismaI.product.findUnique({
-            where: {
-                id: product_id,
-            },
-            include: {
-                product_group: {
-                    select: {
-                        id: true,
-                        name_1c: true,
-                    }
-                },
-                image_registry: {
+export async function getProductService(product_id, name_1c) {
 
-                },
-                qnt_price_registry: {
-                    select: {
-                        size_id: true,
-                        size_name_1c: true,
-                        qnt: true,
-                        sum: true,
-                        store_id: true,
-                    },
-                    where: {
-                        registrator_id: await getLastRegistrator()
-                    }
-                },
+    console.log('server/product.service.js - getProductService start ' + product_id + ' / ' + name_1c);
+    logger.error('server/product.service.js - getProductService start ' + product_id + ' / ' + name_1c);
+
+
+    
+    let data = {
+        include: {
+            product_group: {
+                select: {
+                    id: true,
+                    name_1c: true,
+                }
             },
-        });
-        if (res !== null) {
-            if (res.qnt_price_registry.length > 0) {
-                res.qnt_price_registry_group = groupAndSum(res.qnt_price_registry, ['size_id', 'side_name_id', 'sum'], ['qnt'], ['store_id']);
-            }
+            image_registry: {
+
+            },
+            qnt_price_registry: {
+                select: {
+                    size_id: true,
+                    size_name_1c: true,
+                    qnt: true,
+                    sum: true,
+                    store_id: true,
+                },
+                where: {
+                    registrator_id: await getLastRegistrator()
+                }
+            },
+        },
+    }
+    let res = {};
+    try {
+        
+        if (product_id) {
+            data.where = {
+                id: product_id,
+            };
+            res = await prismaI.product.findUnique(data);
+        } else {
+            data.where = {
+                name_1c: name_1c};
+            res = await prismaI.product.findFirst(data);
         }
-        writeLog('product'+product_id+'.txt', JSON.stringify(res));
+        console.log(JSON.stringify(data));
+            if (res.hasOwnProperty('qnt_price_registry')) {
+                if (res.qnt_price_registry.length > 0) {
+                    res.qnt_price_registry_group = groupAndSum(res.qnt_price_registry, ['size_id', 'side_name_id', 'sum'], ['qnt'], ['store_id']);
+                }
+            }
+        console.log(res);    
+        writeLog('product' + product_id + '.txt', JSON.stringify(res));
         return res;
     }
     catch (error) {
@@ -382,5 +398,5 @@ export async function getProductService(product_id) {
  * @return {array} возвращаем массив объектов товаров с реквизитами согласно схеме и цены/размеры
  */
 export async function getProductsNewsService(news) {
-    
+
 }

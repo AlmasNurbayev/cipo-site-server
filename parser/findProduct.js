@@ -50,6 +50,7 @@ export async function findProduct(tx, obj, registrator_id) {
             let material_podoshva = undefined;
             let sex = undefined;
             let main_color = undefined;
+            let public_web = undefined;
             const images = [];
 
             for (const element_2 of element.elements) {   // цикл по ключам
@@ -134,9 +135,12 @@ export async function findProduct(tx, obj, registrator_id) {
                         product_group_id = res_sv.group;
                         //product_group_name = res_sv.name;
                         // if (Array.isArray(res_sv.desc)) {
-                        ({ material_up, material_inside, material_podoshva, sex, main_color } = res_sv.desc); // т.к. эти переменные уже объявлены, то всю деструктуризацию нужно обернуть в скобки
+                        ({ material_up, material_inside, material_podoshva, sex, main_color, public_web } = res_sv.desc); // т.к. эти переменные уже объявлены, то всю деструктуризацию нужно обернуть в скобки
                         // console.log(material_up, material_inside, material_podoshva);
                         // }
+                        if (public_web == 'Да') {
+                            public_web = true;
+                        } else public_web = false;
                     }
                 }
                 if (element_2.name === 'ЗначенияРеквизитов') {
@@ -163,9 +167,11 @@ export async function findProduct(tx, obj, registrator_id) {
                 material_up: material_up,
                 material_inside: material_inside,
                 material_podoshva: material_podoshva,
-                sex: Number(sex),
+                sex: sex !== undefined ? Number(sex) : null,
                 main_color: main_color,
                 product_vid_id: product_vid_id, 
+                public_web: public_web,
+
             }
             let duplicate = product_all.find(e => e.id_1c === id_1c);
             if (duplicate) {
@@ -200,8 +206,8 @@ function findProductSv(root, product_group_all, product_desc_mapping_all) {
     const res = {};
     res.desc = {};
 
-    console.log('===================');
-    console.log(JSON.stringify(root));
+    // console.log('root===================');
+    // console.log(JSON.stringify(root));
 
 
     root.forEach(element => {
@@ -225,7 +231,8 @@ function findProductSv(root, product_group_all, product_desc_mapping_all) {
         }
         //console.log(product_desc_mapping_id, product_desc_mapping_find.field , product_desc_mapping_find.name_1c);
     })
-    //console.log(JSON.stringify(res));
+    // console.log('res===================');
+    // console.log(JSON.stringify(res));
     return res;
 }
 

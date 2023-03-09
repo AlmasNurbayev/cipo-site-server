@@ -5,20 +5,18 @@ import { getProductsService, getProductsFiltersService, getProductService, getPr
 
 export async function getProduct(request, responce) {
     logger.info('server / product_service.js - getProduct receive query: ' + JSON.stringify(request.query));
-    let { id } = request.query;    
+    console.log('server / product_service.js - getProduct receive query: ' + JSON.stringify(request.query));
+    let { id, name_1c } = request.query;    
+    
     const product_id = parseInt(id);
 
-    const res = await getProductService(product_id);
-    if (res === null) {
+    const res = await getProductService(product_id, name_1c);
+    if (res === null || Object.keys(res).length === 0) { // проверяем на пустой объект
         responce.status(400).send();    
     } else {
-
         responce.status(200).json(res);
     }
-
-    
-
-    logger.info('server / product_service.js - getProducts ended');
+    logger.info('server / product_service.js - getProduct ended');
 }   
 
 export async function getProducts(request, responce) {

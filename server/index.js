@@ -11,6 +11,7 @@ const port = process.env.PORT_EXPRESS;
 
 const app = express();
 
+app.use('/product_images',express.static('product_images'));
 app.use(express.json());
 app.use('/api', initRouterApi());
 //app.use('/static', initRouterStatic());

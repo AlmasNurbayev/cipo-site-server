@@ -38,6 +38,7 @@ model product { // Товары
     description String? // общее описание, например "густой мех, маломерят"
     sex Int? // пол обуви, 1 - мальчик, 2 - девочка, 3 - унисекс
     product_folder String? // папка элемента из справочника НСИ 
+    public_web Boolean? // ВыгружатьВеб
     // foreign keys
     product_group product_group @relation(fields: [product_group_id], references: [id])
     product_group_id Int

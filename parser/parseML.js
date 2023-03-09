@@ -29,6 +29,7 @@ import { prismaI } from '../utils/prisma.js';
  */
 async function moveUpload(oldPath) {
     logger.info('parser/parseML.js - moveUpload ' + 'begin ' + oldPath);
+    console.log('parser/parseML.js - moveUpload ' + 'begin ' + oldPath);
     const result = formatISO(Date.now(), { representation: 'complete' }).replaceAll(':', '-');
     const newFolderName = oldPath + '_' + result;
     try {
@@ -51,6 +52,7 @@ async function moveUpload(oldPath) {
  */
 async function copyImages(oldPath) {
     logger.info('parser/parseML.js - copyImages ' + 'begin ' + oldPath);
+    console.log('parser/parseML.js - copyImages ' + 'begin ' + oldPath);
     //const result = formatISO(Date.now(), { representation: 'complete' }).replaceAll(':', '-');
     //const newFolderName = oldPath + '_' + result;
     try {
@@ -197,8 +199,6 @@ async function main(user_id) {
 
     logger.info('parser/parseML.js - main ' + 'begin ');
 
-
-    const copyImages_res = await copyImages(process.env.mlRoute + '/import_files');
     const newFolder = await moveUpload(process.env.mlRoute);
 
     if (newFolder === undefined) {
@@ -209,8 +209,9 @@ async function main(user_id) {
         await parseImport(tx, newFolder, newFolder + '/import0_1.xml', user_id);
         await parseOffers(tx, newFolder, newFolder + '/offers0_1.xml', user_id);
     });
-
     await prismaI.$disconnect();
+    const copyImages_res = await copyImages(newFolder + '/import_files');
+
     logger.info('parser/parseML.js - main ' + 'end ');
     return;
 }
