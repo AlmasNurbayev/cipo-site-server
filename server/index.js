@@ -4,13 +4,14 @@ import express from "express";
 import { logger } from "../utils/logger.js";
 import dotenv from 'dotenv';
 import {initRouterApi, initRouterStatic} from "./router.js";
+import cors from 'cors';
 
 dotenv.config();
 
 const port = process.env.PORT_EXPRESS;
 
 const app = express();
-
+app.use(cors());
 app.use('/product_images',express.static('product_images'));
 app.use(express.json());
 app.use('/api', initRouterApi());
