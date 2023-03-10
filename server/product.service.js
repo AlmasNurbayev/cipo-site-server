@@ -151,6 +151,7 @@ export async function getProductsService(parameters) {
                 },                
                 product: {
                     select: {
+                        name_1c: true,
                         artikul: true,
                         description: true,
                         material_podoshva: true,
@@ -217,6 +218,7 @@ export async function getProductsService(parameters) {
                     };
                     delete (element_group.qnt);
                     element_group.artikul = element.product.artikul;
+                    element_group.name = element.product.name_1c;
                     element_group.description = element.product.description;
                     element_group.material_podoshva = element.product.material_podoshva;
                     element_group.material_up = element.product.material_up;
@@ -224,6 +226,10 @@ export async function getProductsService(parameters) {
                     element_group.product_group_name = element.product_group.name_1c;
                     if (element.vid_modeli) {
                         element_group.vid_modeli_name = element.vid_modeli.name_1c;
+                        element_group.vid_modeli_id = element.vid_modeli.id;
+                    } else {
+                        element_group.vid_modeli_name = null;
+                        element_group.vid_modeli_id = null;
                     }
                     element_group.material_inside = element.product.material_inside;
                     //element_group.image_registry = element.product.image_registry;
@@ -443,7 +449,6 @@ export async function getProductsNewsService(news) {
         where: {
             public_web: true
         },
-        take: news
     }
     let res1 = await prismaI.product.findMany(query1);
 
@@ -453,6 +458,32 @@ export async function getProductsNewsService(news) {
             return e.id;
         });
     }
+
+    let query11 = { // группируем по продуктам и ценам
+        select: {
+            product_id: true,
+            product_name: true,
+            sum: true
+        },
+        by: ['product_id', 'product_name' , 'sum'],
+        orderBy: {
+            product_id: 'desc',
+        },
+        where: {
+            registrator_id: {
+                equals: registrator_id
+            },
+            product_id: { in: res_id },
+            qnt: {
+                gt: 0,
+            },
+            sum: {
+                gt: 0,
+            }
+        },
+        take: news
+    }
+    let res11 = await prismaI.qnt_price_registry.groupBy(query11);
 
     let query2 = {  // делаем запрос по остаткам и ценам
         include: {
@@ -470,6 +501,7 @@ export async function getProductsNewsService(news) {
             },            
             product: {
                 select: {
+                    name_1c: true,
                     artikul: true,
                     description: true,
                     material_podoshva: true,
@@ -505,20 +537,28 @@ export async function getProductsNewsService(news) {
     let res2 = await prismaI.qnt_price_registry.findMany(query2)
 
     
-    for (const element_group of res1) {
+    for (const element_group of res11) {
         element_group.qnt_price = [];
         for (const element of res2) { // перебираем полный массив, чтобы заполнить сгруппированный массив
-            if (element_group.id != element.product_id) {
+            if (element_group.product_id != element.product_id) {
                 continue;
             };
-            // element_group.artikul = element.product.artikul;
-            // element_group.description = element.product.description;
-            // element_group.material_podoshva = element.product.material_podoshva;
-            // element_group.material_up = element.product.material_up;
-            // element_group.sex = element.product.sex;
+             if (element_group.sum != element.sum) {
+                 continue;
+             };
+             element_group.name = element.product.name_1c;
+             element_group.artikul = element.product.artikul;
+             element_group.description = element.product.description;
+             element_group.material_podoshva = element.product.material_podoshva;
+             element_group.material_up = element.product.material_up;
+             element_group.sex = element.product.sex;
              element_group.product_group_name = element.product_group.name_1c;
              if (element.vid_modeli) {
                 element_group.vid_modeli_name = element.vid_modeli.name_1c;
+                element_group.vid_modeli_id = element.vid_modeli.id;
+             } else {
+                element_group.vid_modeli_name = null;
+                element_group.vid_modeli_id = null;
              }
             // element_group.material_inside = element.product.material_inside;
             // //element_group.image_registry = element.product.image_registry;
@@ -535,13 +575,13 @@ export async function getProductsNewsService(news) {
             })
         }
     }
-    for (const element_group of res1) {
+    for (const element_group of res11) {
         if (element_group.hasOwnProperty('qnt_price')) { // во вложенном объекте с ценами группируем повторяющиеся размеры одного продукта
             element_group.qnt_price = groupAndSum(element_group.qnt_price, ['size', 'sum'], ['qnt'], ['store_id'])
         }
     }
 
 
-    return res1;
+    return res11;
 
 }
