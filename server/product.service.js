@@ -143,6 +143,12 @@ export async function getProductsService(parameters) {
                         name_1c: true,
                     }
                 },
+                vid_modeli: {
+                    select: {
+                        id: true,
+                        name_1c: true,
+                    }
+                },                
                 product: {
                     select: {
                         artikul: true,
@@ -216,6 +222,9 @@ export async function getProductsService(parameters) {
                     element_group.material_up = element.product.material_up;
                     element_group.sex = element.product.sex;
                     element_group.product_group_name = element.product_group.name_1c;
+                    if (element.vid_modeli) {
+                        element_group.vid_modeli_name = element.vid_modeli.name_1c;
+                    }
                     element_group.material_inside = element.product.material_inside;
                     //element_group.image_registry = element.product.image_registry;
                     if (element.product.image_registry) {
@@ -306,6 +315,18 @@ export async function getProductsFiltersService() {
     });
     obj_all.product_group = await getNames('product_group', res_product_group, 'name_1c');
 
+    let res_vid_modeli = await getTables('vid_modeli_id');
+    console.log(res_vid_modeli);
+    
+    res_vid_modeli = res_vid_modeli.filter(e => { // удаляем null так как поле Вид модели не обязательное
+        if (e.vid_modeli_id !== null) {return e};
+    });    
+    res_vid_modeli = res_vid_modeli.map(e => {
+        return e.vid_modeli_id;
+    });
+    obj_all.vid_modeli = await getNames('vid_modeli', res_vid_modeli, 'name_1c');
+
+
     let res_brend = await getTables('product_id');
     res_brend = res_brend.map(e => {
         return e.product_id;
@@ -345,6 +366,12 @@ export async function getProductService(product_id, name_1c) {
                     name_1c: true,
                 }
             },
+            vid_modeli: {
+                select: {
+                    id: true,
+                    name_1c: true,
+                }
+            },            
             image_registry: {
 
             },
@@ -435,6 +462,12 @@ export async function getProductsNewsService(news) {
                     name_1c: true,
                 }
             },
+            vid_modeli: {
+                select: {
+                    id: true,
+                    name_1c: true,
+                }
+            },            
             product: {
                 select: {
                     artikul: true,
@@ -468,7 +501,7 @@ export async function getProductsNewsService(news) {
             product_id: { in: res_id }
         }
     };
-    console.log(registrator_id, res_id);
+    //console.log(registrator_id, res_id);
     let res2 = await prismaI.qnt_price_registry.findMany(query2)
 
     
@@ -483,12 +516,15 @@ export async function getProductsNewsService(news) {
             // element_group.material_podoshva = element.product.material_podoshva;
             // element_group.material_up = element.product.material_up;
             // element_group.sex = element.product.sex;
-            // element_group.product_group_name = element.product_group.name_1c;
+             element_group.product_group_name = element.product_group.name_1c;
+             if (element.vid_modeli) {
+                element_group.vid_modeli_name = element.vid_modeli.name_1c;
+             }
             // element_group.material_inside = element.product.material_inside;
             // //element_group.image_registry = element.product.image_registry;
-            // if (element.product.image_registry) {
-            //     element_group.image_active_path = element.product.image_registry[0].full_name;
-            // }
+             if (element.product.image_registry) {
+                 element_group.image_active_path = element.product.image_registry[0].full_name;
+             }
             // element_group.date = element.product.create_date;
             element_group.qnt_price.push({ // вложенный объект с ценами
                 size: element.size_name_1c,

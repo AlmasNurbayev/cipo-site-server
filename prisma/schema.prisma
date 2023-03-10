@@ -44,6 +44,8 @@ model product { // Товары
     product_group_id Int
     product_vid product_vid @relation(fields: [product_vid_id], references: [id])
     product_vid_id Int
+    vid_modeli vid_modeli? @relation(fields: [vid_modeli_id], references: [id])
+    vid_modeli_id Int?    
     registrator registrator @relation(fields: [registrator_id], references: [id])
     registrator_id Int
     brend brend? @relation(fields: [brend_id], references: [id])
@@ -73,6 +75,22 @@ model product_desc_mapping { // маппинг дополнительных св
     create_date DateTime? @db.Timestamptz
     changed_date DateTime @updatedAt @db.Timestamptz
 }
+
+model vid_modeli { // Вид модели
+    id Int @id @default(autoincrement())
+    id_1c String? @unique // в файле Import нет кода, есть только имя
+    name_1c String
+    // foreign keys
+    registrator registrator @relation(fields: [registrator_id], references: [id])
+    registrator_id Int
+    // date monitor
+    create_date DateTime? @db.Timestamptz
+    changed_date DateTime @updatedAt @db.Timestamptz
+    // used in
+    product product[] //virtual
+    qnt_price_registry qnt_price_registry[]
+}
+
 
 model product_group { // ТоварнаяГруппа - Зима тяжелая (-5 -30)
     id Int @id @default(autoincrement())
@@ -243,6 +261,8 @@ model qnt_price_registry {
     product_group_id Int    
     price_vid price_vid @relation(fields: [price_vid_id], references: [id])
     price_vid_id Int
+    vid_modeli vid_modeli? @relation(fields: [vid_modeli_id], references: [id])
+    vid_modeli_id Int?
     size size @relation(fields: [size_id], references: [id])
     size_id Int
     registrator registrator @relation(fields: [registrator_id], references: [id])
@@ -310,6 +330,7 @@ model registrator {
     image_registry image_registry[]
     product_desc_mapping product_desc_mapping[]
     qnt_price_registry qnt_price_registry[]
+    vid_modeli vid_modeli[]
 }
 
 model order {

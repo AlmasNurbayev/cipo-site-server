@@ -23,6 +23,7 @@ export async function findProduct(tx, obj, registrator_id) {
     const currentDate = formatISO(Date.now(), { representation: 'complete' });
     const product_all = await findDB(tx, 'product', '', '', '');
     const product_group_all = await findDB(tx, 'product_group', '', '', '');
+    const vid_modeli_all = await findDB(tx, 'vid_modeli', '', '', '');
     const product_desc_mapping_all = await findDB(tx, 'product_desc_mapping', '', '', '');
 
     // console.table(product_group_all);
@@ -51,6 +52,7 @@ export async function findProduct(tx, obj, registrator_id) {
             let sex = undefined;
             let main_color = undefined;
             let public_web = undefined;
+            let vid_modeli_id = undefined;
             const images = [];
 
             for (const element_2 of element.elements) {   // цикл по ключам
@@ -79,7 +81,6 @@ export async function findProduct(tx, obj, registrator_id) {
                         base_ed = element_2.attributes.НаименованиеПолное;
                     }
                 }
-
 
                 if (element_2.name === 'Группы') {
                     //console.log(element_des);
@@ -130,9 +131,10 @@ export async function findProduct(tx, obj, registrator_id) {
                 }
                 if (element_2.name === 'ЗначенияСвойств') {
                     if (element_2.elements) {
-                        const res_sv = findProductSv(element_2.elements, product_group_all, product_desc_mapping_all); // декомпозируем поиск Свойств товара в отдельную функцию
+                        const res_sv = findProductSv(element_2.elements, product_group_all, product_desc_mapping_all, vid_modeli_all); // декомпозируем поиск Свойств товара в отдельную функцию
                         //console.log(JSON.stringify(res_sv));
                         product_group_id = res_sv.group;
+                        vid_modeli_id = res_sv.vid_modeli_id;
                         //product_group_name = res_sv.name;
                         // if (Array.isArray(res_sv.desc)) {
                         ({ material_up, material_inside, material_podoshva, sex, main_color, public_web } = res_sv.desc); // т.к. эти переменные уже объявлены, то всю деструктуризацию нужно обернуть в скобки
@@ -171,6 +173,7 @@ export async function findProduct(tx, obj, registrator_id) {
                 main_color: main_color,
                 product_vid_id: product_vid_id, 
                 public_web: public_web,
+                vid_modeli_id: vid_modeli_id,
 
             }
             let duplicate = product_all.find(e => e.id_1c === id_1c);
@@ -201,7 +204,7 @@ export async function findProduct(tx, obj, registrator_id) {
  * @param {array} product_desc_mapping_all - массив строк таблицы product_desc_mapping
  * @return {object} возвращаем объект со свойствами
  */
-function findProductSv(root, product_group_all, product_desc_mapping_all) {
+function findProductSv(root, product_group_all, product_desc_mapping_all, vid_modeli_all) {
 
     const res = {};
     res.desc = {};
@@ -223,6 +226,16 @@ function findProductSv(root, product_group_all, product_desc_mapping_all) {
             res.group = product_group_id;
             //res.name = product_group_find.name_1c;
         }
+
+        let vid_modeli_id = 0;
+        const vid_modeli = element.elements[1].elements[0].text;
+        const vid_modeli_find = vid_modeli_all.find(e => e.id_1c === vid_modeli);
+        if (vid_modeli_find) {
+            vid_modeli_id = vid_modeli_find.id;
+            //console.log(product_group_id, product_group_find.name_1c);
+            res.vid_modeli_id = vid_modeli_id;
+            //res.name = product_group_find.name_1c;
+        }        
 
         const desc_id = element.elements[0].elements[0].text;
         const product_desc_mapping_find = product_desc_mapping_all.find(e => e.id_1c === desc_id);

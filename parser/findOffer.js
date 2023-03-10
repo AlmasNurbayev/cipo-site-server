@@ -39,6 +39,7 @@ export async function findOffer(tx, obj) {
             let price = [];
             let qnt = [];
             let qnt_price = [];
+            let vid_modeli_id = undefined;
             //let price = 0;
 
 
@@ -55,6 +56,7 @@ export async function findOffer(tx, obj) {
                             product_id = product_id_1c_find.id;
                             product_group_id = product_id_1c_find.product_group_id;
                             product_name = product_id_1c_find.name_1c;
+                            vid_modeli_id = product_id_1c_find.vid_modeli_id;
                         }
                     }
                 }
@@ -123,6 +125,7 @@ export async function findOffer(tx, obj) {
                                     size_id: size_id,
                                     product_id: product_id,
                                     store_id: id,
+                                    vid_modeli_id: vid_modeli_id,
                                     //name: name,
                                     //ИдСклада: element2.attributes.ИдСклада,
                                     qnt: Number(element2.attributes.КоличествоНаСкладе),
@@ -164,7 +167,7 @@ export async function findOffer(tx, obj) {
                 console.log('parser/findOffer.js - not found qnt ' + artikul);
                 throw Error;
             }            
-            if (price.length==0) {
+            if (res_qnt_price.length==0) {
                 logger.error('parser/findOffer.js - not found price ' + artikul);
                 console.log('parser/findOffer.js - not found price ' + artikul);
                 throw Error;
@@ -176,8 +179,8 @@ export async function findOffer(tx, obj) {
         }
     }
     
-    res.price = res_price;
-    res.qnt = res_qnt;
+    //res.price = res_price;
+    //res.qnt = res_qnt;
     res.qnt_price = res_qnt_price;
     writeLog('offers_res.txt', JSON.stringify(res_qnt_price));
     return(res);

@@ -101,9 +101,16 @@ async function parseImport(tx, path, file, user_id) {
         };
     };
 
+    logger.info('parser/parseML.js - parseImport ' + ' - obj_vid_modeli');
+    const obj_vid_modeli = await findProperties(tx, obj, 'Свойства', 'ВидМодели');
+    await recordDB(tx, 'array', 'vid_modeli', obj_vid_modeli.record, res_record.registrator.id);
+    if (obj_vid_modeli.update.length > 0) {
+        for (const element of obj_vid_modeli.update) {
+            const res_update_vid_modeli = await updateDB(tx, 'object', 'vid_modeli', element, { id_1c: element.id_1c }, res_record.registrator.id);
+        };
+    };
 
-
-    //console.log(obj_product_group);
+    //console.log(obj_vid_modeli);
 
     // парсим и пишем таблицу товаров
     logger.info('parser/parseML.js - parseImport ' + ' - obj_product');
@@ -184,8 +191,8 @@ async function parseOffers(tx, path, file, user_id) {
     //console.log(obj_offers);
 
     
-        await recordDB(tx,'array', 'price_registry', obj_offers.price, res_record.registrator.id);
-        await recordDB(tx,'array', 'qnt_registry', obj_offers.qnt, res_record.registrator.id);
+        //await recordDB(tx,'array', 'price_registry', obj_offers.price, res_record.registrator.id);
+        //await recordDB(tx,'array', 'qnt_registry', obj_offers.qnt, res_record.registrator.id);
         await recordDB(tx,'array', 'qnt_price_registry', obj_offers.qnt_price, res_record.registrator.id);
 
     return;
