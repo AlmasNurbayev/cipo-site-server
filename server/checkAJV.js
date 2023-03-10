@@ -1,3 +1,5 @@
+'useStrict';
+
 import Ajv from "ajv/dist/jtd.js"
 
 

@@ -1,3 +1,5 @@
+'useStrict';
+
 export const getProductsSchema = {
     schema: {
         swagger: "2.0",

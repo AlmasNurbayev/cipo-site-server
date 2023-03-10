@@ -1,3 +1,5 @@
+'useStrict';
+
 import { prismaI } from "../utils/prisma.js";
 import { logger, writeLog } from "../utils/logger.js";
 import { groupAndSum } from "./utils.js";
