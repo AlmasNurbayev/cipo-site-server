@@ -336,7 +336,7 @@ export async function getProductService(product_id, name_1c) {
     logger.error('server/product.service.js - getProductService start ' + product_id + ' / ' + name_1c);
 
 
-    
+
     let data = {
         include: {
             product_group: {
@@ -364,7 +364,7 @@ export async function getProductService(product_id, name_1c) {
     }
     let res = {};
     try {
-        
+
         if (product_id) {
             data.where = {
                 id: product_id,
@@ -372,16 +372,17 @@ export async function getProductService(product_id, name_1c) {
             res = await prismaI.product.findUnique(data);
         } else {
             data.where = {
-                name_1c: name_1c};
+                name_1c: name_1c
+            };
             res = await prismaI.product.findFirst(data);
         }
         console.log(JSON.stringify(data));
-            if (res.hasOwnProperty('qnt_price_registry')) {
-                if (res.qnt_price_registry.length > 0) {
-                    res.qnt_price_registry_group = groupAndSum(res.qnt_price_registry, ['size_id', 'side_name_id', 'sum'], ['qnt'], ['store_id']);
-                }
+        if (res.hasOwnProperty('qnt_price_registry')) {
+            if (res.qnt_price_registry.length > 0) {
+                res.qnt_price_registry_group = groupAndSum(res.qnt_price_registry, ['size_id', 'side_name_id', 'sum'], ['qnt'], ['store_id']);
             }
-        console.log(res);    
+        }
+        console.log(res);
         writeLog('product' + product_id + '.txt', JSON.stringify(res));
         return res;
     }
@@ -400,5 +401,111 @@ export async function getProductService(product_id, name_1c) {
  * @return {array} возвращаем массив объектов товаров с реквизитами согласно схеме и цены/размеры
  */
 export async function getProductsNewsService(news) {
+    if (!news) {
+        news = 10;
+    }
+    let res = [];
+    logger.info('server/product.service.js - getProductsNewsService start');
+    console.log('get getProductsNewsService', news);
+    const registrator_id = await getLastRegistrator();
+
+    let query1 = { // выбираем последние продукты по дате создания
+        orderBy: {
+            create_date: 'desc',
+        },
+        where: {
+            public_web: true
+        },
+        take: news
+    }
+    let res1 = await prismaI.product.findMany(query1);
+
+    let res_id = []; // создам массив с id выбранных продуктов
+    if (res1 !== null) {
+        res_id = res1.map(e => {
+            return e.id;
+        });
+    }
+
+    let query2 = {  // делаем запрос по остаткам и ценам
+        include: {
+            product_group: {
+                select: {
+                    id: true,
+                    name_1c: true,
+                }
+            },
+            product: {
+                select: {
+                    artikul: true,
+                    description: true,
+                    material_podoshva: true,
+                    material_up: true,
+                    material_inside: true,
+                    create_date: true,
+                    sex: true,
+                    image_registry: {
+                        select: {
+                            id: true,
+                            name: true,
+                            active: true,
+                            main: true,
+                            full_name: true,
+                        },
+                        where:
+                        {
+                            active: { equals: true }
+                        }
+                    },
+
+                },
+            },
+        },
+
+        where:
+        {
+            registrator_id: registrator_id,
+            product_id: { in: res_id }
+        }
+    };
+    console.log(registrator_id, res_id);
+    let res2 = await prismaI.qnt_price_registry.findMany(query2)
+
+    
+    for (const element_group of res1) {
+        element_group.qnt_price = [];
+        for (const element of res2) { // перебираем полный массив, чтобы заполнить сгруппированный массив
+            if (element_group.id != element.product_id) {
+                continue;
+            };
+            // element_group.artikul = element.product.artikul;
+            // element_group.description = element.product.description;
+            // element_group.material_podoshva = element.product.material_podoshva;
+            // element_group.material_up = element.product.material_up;
+            // element_group.sex = element.product.sex;
+            // element_group.product_group_name = element.product_group.name_1c;
+            // element_group.material_inside = element.product.material_inside;
+            // //element_group.image_registry = element.product.image_registry;
+            // if (element.product.image_registry) {
+            //     element_group.image_active_path = element.product.image_registry[0].full_name;
+            // }
+            // element_group.date = element.product.create_date;
+            element_group.qnt_price.push({ // вложенный объект с ценами
+                size: element.size_name_1c,
+                qnt: Number(element.qnt),
+                sum: Number(element.sum),
+                store_id: element.store_id,
+                //                        store: element.store_id,
+            })
+        }
+    }
+    for (const element_group of res1) {
+        if (element_group.hasOwnProperty('qnt_price')) { // во вложенном объекте с ценами группируем повторяющиеся размеры одного продукта
+            element_group.qnt_price = groupAndSum(element_group.qnt_price, ['size', 'sum'], ['qnt'], ['store_id'])
+        }
+    }
+
+
+    return res1;
 
 }
