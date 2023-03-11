@@ -222,6 +222,7 @@ export async function getProductsService(parameters) {
                     element_group.description = element.product.description;
                     element_group.material_podoshva = element.product.material_podoshva;
                     element_group.material_up = element.product.material_up;
+                    element_group.material_inside = element.product.material_inside;
                     element_group.sex = element.product.sex;
                     element_group.product_group_name = element.product_group.name_1c;
                     if (element.vid_modeli) {
@@ -498,7 +499,8 @@ export async function getProductsNewsService(news) {
                     id: true,
                     name_1c: true,
                 }
-            },            
+            },
+            
             product: {
                 select: {
                     name_1c: true,
@@ -551,6 +553,7 @@ export async function getProductsNewsService(news) {
              element_group.description = element.product.description;
              element_group.material_podoshva = element.product.material_podoshva;
              element_group.material_up = element.product.material_up;
+             element_group.material_inside = element.product.material_inside;
              element_group.sex = element.product.sex;
              element_group.product_group_name = element.product_group.name_1c;
              if (element.vid_modeli) {
@@ -563,6 +566,7 @@ export async function getProductsNewsService(news) {
             // element_group.material_inside = element.product.material_inside;
             // //element_group.image_registry = element.product.image_registry;
              if (element.product.image_registry) {
+                 element_group.image_registry = element.product.image_registry;
                  element_group.image_active_path = element.product.image_registry[0].full_name;
              }
             // element_group.date = element.product.create_date;
