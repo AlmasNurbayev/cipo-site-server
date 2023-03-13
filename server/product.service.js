@@ -57,6 +57,12 @@ export async function getProductsService(parameters) {
     logger.info('server/product.service.js - getProductsService start');
     let where = {};
     for (const key in parameters) {
+        if (parameters[key] === undefined || isNaN(parameters[key]) === true) {
+            continue;
+        }
+        if (key === undefined || isNaN(key) === true) {
+            continue;
+        }        
         where[key] = parameters[key];
     };
     let query = {
@@ -122,9 +128,15 @@ export async function getProductsService(parameters) {
         if (parameters.skip) {
             query1.skip = parameters.skip;
         };
-        query1.where.product_group_id = { in: parameters.product_group };
-        query1.where.size_id = { in: parameters.size };
-        query1.where.sum = { lte: maxprice, gte: minprice };
+        if (parameters.product_group !== undefined &&  isNaN(parameters.product_group) === false) {
+            query1.where.product_group_id = { in: parameters.product_group };
+        }
+        if (parameters.size !== undefined &&  isNaN(parameters.size) === false) {
+            query1.where.size_id = { in: parameters.size };
+        }
+        if (maxprice && minprice) {
+            query1.where.sum = { lte: maxprice, gte: minprice };
+        }
 
         let res1 = await prismaI.qnt_price_registry.groupBy(query1);
         //console.log(res1);
@@ -309,7 +321,7 @@ export async function getProductsFiltersService() {
             logger.error('server/product.service.js - getProductsFilters ' + error.stack);
         }
     };
-
+    
     let res_size = await getTables('size_id');
     res_size = res_size.map(e => {
         return e.size_id;
