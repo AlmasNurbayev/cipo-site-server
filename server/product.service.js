@@ -148,7 +148,7 @@ export async function getProductsService(parameters) {
                         id: true,
                         name_1c: true,
                     }
-                },                
+                },
                 product: {
                     select: {
                         name_1c: true,
@@ -315,6 +315,7 @@ export async function getProductsFiltersService() {
         return e.size_id;
     });
     obj_all.size = await getNames('size', res_size, 'name_1c');
+    obj_all.size = obj_all.size.sort((a, b) => a.name_1c > b.name_1c ? 1 : -1);
 
     let res_product_group = await getTables('product_group_id');
     res_product_group = res_product_group.map(e => {
@@ -323,11 +324,10 @@ export async function getProductsFiltersService() {
     obj_all.product_group = await getNames('product_group', res_product_group, 'name_1c');
 
     let res_vid_modeli = await getTables('vid_modeli_id');
-    console.log(res_vid_modeli);
-    
+
     res_vid_modeli = res_vid_modeli.filter(e => { // удаляем null так как поле Вид модели не обязательное
-        if (e.vid_modeli_id !== null) {return e};
-    });    
+        if (e.vid_modeli_id !== null) { return e };
+    });
     res_vid_modeli = res_vid_modeli.map(e => {
         return e.vid_modeli_id;
     });
@@ -378,7 +378,7 @@ export async function getProductService(product_id, name_1c) {
                     id: true,
                     name_1c: true,
                 }
-            },            
+            },
             image_registry: {
 
             },
@@ -438,154 +438,164 @@ export async function getProductsNewsService(news) {
     if (!news) {
         news = 10;
     }
-    let res = [];
+    
     logger.info('server/product.service.js - getProductsNewsService start');
     console.log('get getProductsNewsService', news);
-    const registrator_id = await getLastRegistrator();
 
-    let query1 = { // выбираем последние продукты по дате создания
-        orderBy: {
-            create_date: 'desc',
-        },
-        where: {
-            public_web: true
-        },
-    }
-    let res1 = await prismaI.product.findMany(query1);
+    try {
+        let res = [];
+        const registrator_id = await getLastRegistrator();
 
-    let res_id = []; // создам массив с id выбранных продуктов
-    if (res1 !== null) {
-        res_id = res1.map(e => {
-            return e.id;
-        });
-    }
-
-    let query11 = { // группируем по продуктам и ценам
-        select: {
-            product_id: true,
-            product_name: true,
-            sum: true
-        },
-        by: ['product_id', 'product_name' , 'sum'],
-        orderBy: {
-            product_id: 'desc',
-        },
-        where: {
-            registrator_id: {
-                equals: registrator_id
+        let query1 = { // выбираем последние продукты по дате создания
+            orderBy: {
+                create_date: 'desc',
             },
-            product_id: { in: res_id },
-            qnt: {
-                gt: 0,
+            where: {
+                public_web: true
             },
-            sum: {
-                gt: 0,
-            }
-        },
-        take: news
-    }
-    let res11 = await prismaI.qnt_price_registry.groupBy(query11);
+        }
+        let res1 = await prismaI.product.findMany(query1);
 
-    let query2 = {  // делаем запрос по остаткам и ценам
-        include: {
-            product_group: {
-                select: {
-                    id: true,
-                    name_1c: true,
+        let res_id = []; // создам массив с id выбранных продуктов
+        if (res1 !== null) {
+            res_id = res1.map(e => {
+                return e.id;
+            });
+        }
+
+        let query11 = { // группируем по продуктам и ценам
+            select: {
+                product_id: true,
+                product_name: true,
+                sum: true
+            },
+            by: ['product_id', 'product_name', 'sum'],
+            orderBy: {
+                product_id: 'desc',
+            },
+            where: {
+                registrator_id: {
+                    equals: registrator_id
+                },
+                product_id: { in: res_id },
+                qnt: {
+                    gt: 0,
+                },
+                sum: {
+                    gt: 0,
                 }
             },
-            vid_modeli: {
-                select: {
-                    id: true,
-                    name_1c: true,
-                }
-            },
-            
-            product: {
-                select: {
-                    name_1c: true,
-                    artikul: true,
-                    description: true,
-                    material_podoshva: true,
-                    material_up: true,
-                    material_inside: true,
-                    create_date: true,
-                    sex: true,
-                    image_registry: {
-                        select: {
-                            id: true,
-                            name: true,
-                            active: true,
-                            main: true,
-                            full_name: true,
+            take: news
+        }
+        let res11 = await prismaI.qnt_price_registry.groupBy(query11);
+
+        let query2 = {  // делаем запрос по остаткам и ценам
+            include: {
+                product_group: {
+                    select: {
+                        id: true,
+                        name_1c: true,
+                    }
+                },
+                vid_modeli: {
+                    select: {
+                        id: true,
+                        name_1c: true,
+                    }
+                },
+
+                product: {
+                    select: {
+                        name_1c: true,
+                        artikul: true,
+                        description: true,
+                        material_podoshva: true,
+                        material_up: true,
+                        material_inside: true,
+                        create_date: true,
+                        sex: true,
+                        image_registry: {
+                            select: {
+                                id: true,
+                                name: true,
+                                active: true,
+                                main: true,
+                                full_name: true,
+                            },
+                            where:
+                            {
+                                active: { equals: true }
+                            }
                         },
-                        where:
-                        {
-                            active: { equals: true }
-                        }
-                    },
 
+                    },
                 },
             },
-        },
 
-        where:
-        {
-            registrator_id: registrator_id,
-            product_id: { in: res_id }
-        }
-    };
-    //console.log(registrator_id, res_id);
-    let res2 = await prismaI.qnt_price_registry.findMany(query2)
+            where:
+            {
+                registrator_id: registrator_id,
+                product_id: { in: res_id }
+            }
+        };
+        //console.log(registrator_id, res_id);
+        let res2 = await prismaI.qnt_price_registry.findMany(query2)
 
-    
-    for (const element_group of res11) {
-        element_group.qnt_price = [];
-        for (const element of res2) { // перебираем полный массив, чтобы заполнить сгруппированный массив
-            if (element_group.product_id != element.product_id) {
-                continue;
-            };
-             if (element_group.sum != element.sum) {
-                 continue;
-             };
-             element_group.name = element.product.name_1c;
-             element_group.artikul = element.product.artikul;
-             element_group.description = element.product.description;
-             element_group.material_podoshva = element.product.material_podoshva;
-             element_group.material_up = element.product.material_up;
-             element_group.material_inside = element.product.material_inside;
-             element_group.sex = element.product.sex;
-             element_group.product_group_name = element.product_group.name_1c;
-             if (element.vid_modeli) {
-                element_group.vid_modeli_name = element.vid_modeli.name_1c;
-                element_group.vid_modeli_id = element.vid_modeli.id;
-             } else {
-                element_group.vid_modeli_name = null;
-                element_group.vid_modeli_id = null;
-             }
-            // element_group.material_inside = element.product.material_inside;
-            // //element_group.image_registry = element.product.image_registry;
-             if (element.product.image_registry) {
-                 element_group.image_registry = element.product.image_registry;
-                 element_group.image_active_path = element.product.image_registry[0].full_name;
-             }
-            // element_group.date = element.product.create_date;
-            element_group.qnt_price.push({ // вложенный объект с ценами
-                size: element.size_name_1c,
-                qnt: Number(element.qnt),
-                sum: Number(element.sum),
-                store_id: element.store_id,
-                //                        store: element.store_id,
-            })
+        for (const element_group of res11) {
+            element_group.qnt_price = [];
+            for (const element of res2) { // перебираем полный массив, чтобы заполнить сгруппированный массив
+                if (element_group.product_id != element.product_id) {
+                    continue;
+                };
+                if (element_group.sum != element.sum) {
+                    continue;
+                };
+                element_group.name = element.product.name_1c;
+                element_group.artikul = element.product.artikul;
+                element_group.description = element.product.description;
+                element_group.material_podoshva = element.product.material_podoshva;
+                element_group.material_up = element.product.material_up;
+                element_group.material_inside = element.product.material_inside;
+                element_group.sex = element.product.sex;
+                element_group.product_group_name = element.product_group.name_1c;
+                if (element.vid_modeli) {
+                    element_group.vid_modeli_name = element.vid_modeli.name_1c;
+                    element_group.vid_modeli_id = element.vid_modeli.id;
+                } else {
+                    element_group.vid_modeli_name = null;
+                    element_group.vid_modeli_id = null;
+                }
+                // element_group.material_inside = element.product.material_inside;
+                // //element_group.image_registry = element.product.image_registry;
+                if (element.product.image_registry) {
+                    element_group.image_registry = element.product.image_registry;
+                    element_group.image_active_path = element.product.image_registry[0].full_name;
+                }
+                // element_group.date = element.product.create_date;
+                element_group.qnt_price.push({ // вложенный объект с ценами
+                    size: element.size_name_1c,
+                    qnt: Number(element.qnt),
+                    sum: Number(element.sum),
+                    store_id: element.store_id,
+                    //                        store: element.store_id,
+                })
+            }
         }
+        for (const element_group of res11) {
+            if (element_group.hasOwnProperty('qnt_price')) { // во вложенном объекте с ценами группируем повторяющиеся размеры одного продукта
+                element_group.qnt_price = groupAndSum(element_group.qnt_price, ['size', 'sum'], ['qnt'], ['store_id'])
+            }
+        }
+
+
+        return res11;
+
+
+
+    } catch (error) {
+        console.log('server/product.service.js - getProductNewsService ' + error.stack);
+        logger.error('server/product.service.js - getProductNewsService ' + error.stack);
+
     }
-    for (const element_group of res11) {
-        if (element_group.hasOwnProperty('qnt_price')) { // во вложенном объекте с ценами группируем повторяющиеся размеры одного продукта
-            element_group.qnt_price = groupAndSum(element_group.qnt_price, ['size', 'sum'], ['qnt'], ['store_id'])
-        }
-    }
-
-
-    return res11;
 
 }

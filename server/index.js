@@ -13,8 +13,12 @@ const port = process.env.PORT_EXPRESS;
 const app = express();
 app.use(cors());
 app.use('/product_images',express.static('product_images'));
+app.use('/news_images',express.static('news_images'));
+app.use('/store_images',express.static('store_images'));
 app.use(express.json());
 app.use('/api', initRouterApi());
+
+
 //app.use('/static', initRouterStatic());
 
 app.listen(port, ()=> {

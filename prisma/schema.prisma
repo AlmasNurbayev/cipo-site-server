@@ -146,6 +146,7 @@ model store { // склады в 1С, они же магазины здесь
     link_2gis String? // заполнять самим - URL
     phone String? // заполнять самим
     city String? // заполнять самим
+    image_path String? // путь до картинки
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
     registrator_id Int
@@ -351,6 +352,17 @@ model order {
        // used in 
     cart cart[]
 }
+
+model news {
+    id Int @id @default(autoincrement())
+    operation_date DateTime @db.Timestamptz
+    title String // заголовок
+    data String // html текст
+    image_path String? // путь до картинки
+    // date monitor
+    changed_date DateTime @updatedAt @db.Timestamptz
+}
+
 
 model cart {
     id Int @id @default(autoincrement())
