@@ -35,6 +35,7 @@ export async function findOffer(tx, obj) {
             let size_id = undefined;
             let artikul = undefined;
             let product_name = undefined;
+            let product_create_date = undefined;
             let size_name_1c = undefined;
             let price = [];
             let qnt = [];
@@ -57,6 +58,7 @@ export async function findOffer(tx, obj) {
                             product_group_id = product_id_1c_find.product_group_id;
                             product_name = product_id_1c_find.name_1c;
                             vid_modeli_id = product_id_1c_find.vid_modeli_id;
+                            product_create_date = product_id_1c_find.create_date;
                         }
                     }
                 }
@@ -134,6 +136,7 @@ export async function findOffer(tx, obj) {
                                 data.product_group_id = product_group_id;
                                 data.size_name_1c = size_name_1c;
                                 data.product_name = product_name;
+                                data.product_create_date = product_create_date;
                                 res_qnt.push(data2);
                                 qnt.push(data2);
                                 res_qnt_price.push(data);

@@ -22,7 +22,7 @@ export async function getProduct(request, responce) {
 export async function getProducts(request, responce) {
     logger.info('server / product.controller.js - getProducts receive query: ' + JSON.stringify(request.query));
 
-    let { size, product_group, brend, price, take, skip, sort  } = request.query;
+    let { size, product_group, brend, take, skip, sort, maxPrice, minPrice, vid_modeli, search_name  } = request.query;
     // [ '31', ' 32' ] [ 1, 3 ] [ 4, 5 ] [ 10000, 50000 ]
 
     if (take) {
@@ -38,6 +38,11 @@ export async function getProducts(request, responce) {
         size = size.map((x) => { return parseInt(x) });
     }
 
+    if (vid_modeli) {
+        vid_modeli = vid_modeli.split(',');
+        vid_modeli = vid_modeli.map((x) => { return parseInt(x) });
+    }    
+
     if (product_group) {
         product_group = product_group.split(',');
         product_group = product_group.map((x) => { return parseInt(x) });
@@ -48,16 +53,14 @@ export async function getProducts(request, responce) {
         brend = brend.map((x) => { return parseInt(x) });
     }
 
-    if (price) {
-        price = price.split(',');
-        price = price.map((x) => { return parseInt(x) });
-    }
+    if (minPrice) {minPrice = parseInt(minPrice)}
+    if (maxPrice) {maxPrice = parseInt(maxPrice)}
 
     if (sort) {
         sort = sort.split('-');
     }
 
-    const res = await getProductsService({size: size, product_group: product_group, brend: brend, price: price, take: take, skip: skip, sort: sort});
+    const res = await getProductsService({vid_modeli: vid_modeli, size: size, product_group: product_group, brend: brend, minPrice: minPrice, maxPrice: maxPrice , take: take, skip: skip, sort: sort, search_name: search_name});
     
     if (res === null) {
         responce.status(400).send();    

@@ -55,28 +55,16 @@ async function getLastRegistrator() {
  */
 export async function getProductsService(parameters) {
     logger.info('server/product.service.js - getProductsService start');
-    let where = {};
-    for (const key in parameters) {
-        if (parameters[key] === undefined || isNaN(parameters[key]) === true) {
-            continue;
-        }
-        if (key === undefined || isNaN(key) === true) {
-            continue;
-        }        
-        where[key] = parameters[key];
-    };
-    let query = {
-        where: where
-    };
-    console.log('get query product ' + JSON.stringify(query));
+
+    console.log('get query product ' + JSON.stringify(parameters));
 
     const registrator_id = await getLastRegistrator();
 
     try {
-        let minprice = undefined;
-        let maxprice = undefined;
-        // let res_size = undefined;
-        // let res_product_group = undefined;
+    //    let minprice = undefined;
+    //    let maxprice = undefined;
+    //     let res_size = undefined;
+    //     let res_product_group = undefined;
         let res_qnt_price = undefined;
         // if (parameters.size) {
         //     res_size = await prismaI.size.findMany({ where: { name_1c: { in: parameters.size }, }, })
@@ -84,24 +72,27 @@ export async function getProductsService(parameters) {
         // if (parameters.product_group) {
         //     res_product_group = await prismaI.product_group.findMany({ where: { id: { in: parameters.product_group }, }, })
         // }
-        if (parameters.price) {
-            if (parameters.price[0] && parameters.price[1]) {
-                minprice = parameters.price[0];
-                maxprice = parameters.price[1];
-                if (maxprice < minprice) {
+
+
+                if (parameters.maxPrice < parameters.minPrice) {
                     logger.error('server/product.service.js - getProductsService, parameter Price min > max');
+                    console.log('server/product.service.js - getProductsService, parameter Price min > max');
+                    return null;
                 }
-            } else {
-                logger.error('server/product.service.js - getProductsService, parameter Price is not two numbers');
-            }
-        }
+                
+                if ((!parameters.minPrice && parameters.maxPrice) || (parameters.minPrice && !parameters.maxPrice)) {
+                    logger.error('server/product.service.js - getProductsService, parameter Price is not two numbers');
+                    console.log('server/product.service.js - getProductsService, parameter Price is not two numbers');
+                    return null;
+                }
+
 
         /// нужно все товары сгуппировать в блоки -Товар-Цена, тогда 1 товар может выведен в несколько строк, если внутри разные цены
         let query1 = {
             select: {
                 product_id: true,
             },
-            by: ['product_id', 'sum', 'product_group_id'],
+            by: ['product_id', 'sum', 'product_group_id', 'product_create_date', 'product_name'],
             orderBy: {
                 product_id: 'desc',
             },
@@ -117,7 +108,7 @@ export async function getProductsService(parameters) {
                 }
             }
         }
-        if (parameters.sort) {
+        if (parameters.sort && parameters.sort[0] !== 'Сортировка') {
             query1.orderBy = {
                 [parameters.sort[0]]: parameters.sort[1]
             };
@@ -128,16 +119,23 @@ export async function getProductsService(parameters) {
         if (parameters.skip) {
             query1.skip = parameters.skip;
         };
-        if (parameters.product_group !== undefined &&  isNaN(parameters.product_group) === false) {
+        if (parameters.product_group !== undefined && parameters.product_group.length != 0) {
             query1.where.product_group_id = { in: parameters.product_group };
         }
-        if (parameters.size !== undefined &&  isNaN(parameters.size) === false) {
+        if (parameters.search_name) {
+            query1.where.product_name = { search: parameters.search_name, mode: 'insensitive'}
+        }
+        if (parameters.vid_modeli !== undefined && parameters.vid_modeli.length != 0) {
+            query1.where.vid_modeli_id = { in: parameters.vid_modeli };
+        }
+        if (parameters.size !== undefined && parameters.size.length != 0) {
             query1.where.size_id = { in: parameters.size };
         }
-        if (maxprice && minprice) {
-            query1.where.sum = { lte: maxprice, gte: minprice };
+        if (parameters.maxPrice && parameters.minPrice) {
+            query1.where.sum = { lte: parameters.maxPrice, gte: parameters.minPrice };
         }
-
+        // console.log(parameters.product_group);
+         //console.log(JSON.stringify(query1));
         let res1 = await prismaI.qnt_price_registry.groupBy(query1);
         //console.log(res1);
         let res_id = [];
@@ -181,7 +179,7 @@ export async function getProductsService(parameters) {
                             },
                             where:
                             {
-                                main: { equals: true },
+                                //main: { equals: true },
                                 active: { equals: true }
                             }
                         },
@@ -201,6 +199,7 @@ export async function getProductsService(parameters) {
                 [parameters.sort[0]]: parameters.sort[1]
             };
         };
+        
         res_qnt_price = await prismaI.qnt_price_registry.findMany(query2)
         //console.log(res_qnt_price);
         // приводим массив данных к формату схемы    
@@ -246,10 +245,11 @@ export async function getProductsService(parameters) {
                     }
                     element_group.material_inside = element.product.material_inside;
                     //element_group.image_registry = element.product.image_registry;
+                    element_group.image_registry = element.product.image_registry;
                     if (element.product.image_registry) {
-                        element_group.image_active_path = element.product.image_registry[0].full_name;
+                        element_group.image_active_path = element.product.image_registry.find(e => e.main === true).full_name;
                     }
-                    element_group.date = element.product.create_date;
+                    element_group.create_date = element.product.create_date;
                     element_group.qnt_price.push({ // вложенный объект с ценами
                         size: element.size_name_1c,
                         qnt: Number(element.qnt),
