@@ -61,17 +61,8 @@ export async function getProductsService(parameters) {
     const registrator_id = await getLastRegistrator();
 
     try {
-    //    let minprice = undefined;
-    //    let maxprice = undefined;
-    //     let res_size = undefined;
-    //     let res_product_group = undefined;
-        let res_qnt_price = undefined;
-        // if (parameters.size) {
-        //     res_size = await prismaI.size.findMany({ where: { name_1c: { in: parameters.size }, }, })
-        // }
-        // if (parameters.product_group) {
-        //     res_product_group = await prismaI.product_group.findMany({ where: { id: { in: parameters.product_group }, }, })
-        // }
+            let res_qnt_price = undefined;
+
 
 
                 if (parameters.maxPrice < parameters.minPrice) {
@@ -134,9 +125,21 @@ export async function getProductsService(parameters) {
         if (parameters.maxPrice && parameters.minPrice) {
             query1.where.sum = { lte: parameters.maxPrice, gte: parameters.minPrice };
         }
-        // console.log(parameters.product_group);
-         //console.log(JSON.stringify(query1));
         let res1 = await prismaI.qnt_price_registry.groupBy(query1);
+
+        /// для клиента мы должны посчитать общее кол-во строк без учета пагинации (take-skip)
+        /// придется делать второй такой запрос, так как нужно группировать
+        let query_count = structuredClone(query1);
+        if (query_count.hasOwnProperty('take')) {
+            delete query_count.take; 
+        } 
+        if (query_count.hasOwnProperty('skip')) {
+            delete query_count.skip; 
+          }         
+        let res_count = await prismaI.qnt_price_registry.groupBy(query_count);
+        //console.log('full ', res_count.length);
+
+
         //console.log(res1);
         let res_id = [];
         if (res1 !== null) {
@@ -201,7 +204,7 @@ export async function getProductsService(parameters) {
         };
         
         res_qnt_price = await prismaI.qnt_price_registry.findMany(query2)
-        //console.log(res_qnt_price);
+        //console.log(res1.length);
         // приводим массив данных к формату схемы    
         let qnt_price_group = res_qnt_price;
         if (res_qnt_price.length > 0) {
@@ -272,7 +275,7 @@ export async function getProductsService(parameters) {
         var xls = json2xls(res_qnt_price);
         fs.writeFileSync('logs/res_qnt_price.xlsx', xls, 'binary');
         logger.info('server/product.service.js - getProductsService ended');
-        return qnt_price_group;
+        return {data: qnt_price_group, full_count: res_count.length, current_count: qnt_price_group.length};
     } catch (error) {
         logger.error('server/product.service.js - getProductsService ' + error.stack);
         console.log(error.stack);

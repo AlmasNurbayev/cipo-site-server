@@ -41,7 +41,9 @@ export async function recordDB(tx, type, table, obj, registratorID) {
 
             obj.forEach(element => {
                element.create_date = currentDate; 
-               element.registrator_id = registratorID;
+               if (registratorID) {
+                    element.registrator_id = registratorID;
+                }
             });
 
             try {

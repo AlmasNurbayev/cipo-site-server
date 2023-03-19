@@ -172,7 +172,6 @@ model price_vid { // типы цен - Розничная (РФ-Китай) до
     create_date DateTime? @db.Timestamptz
     changed_date DateTime @updatedAt @db.Timestamptz
     // used in
-    price_registry price_registry[]
     qnt_price_registry qnt_price_registry[]
 }
 
@@ -205,22 +204,25 @@ model country { // справочник страна производства
 }
 
 
-model price_registry { // регистр цен
+model price_registry { // регистр цен себестоимости
     id Int @id @default(autoincrement())
     sum Float
     operation_date DateTime @db.Timestamptz
     discount_percent Decimal?
     discount_begin DateTime? @db.Timestamptz
     discount_end DateTime? @db.Timestamptz
+    product_name_1c String
+    product_artikul String?
+    product_id_1c String
+    size_name_1c String
+    price_vid_name_1c String
     // foreign keys
     product product @relation(fields: [product_id], references: [id])
     product_id Int
-    price_vid price_vid @relation(fields: [price_vid_id], references: [id])
-    price_vid_id Int
     size size @relation(fields: [size_id], references: [id])
     size_id Int
-    registrator registrator @relation(fields: [registrator_id], references: [id])
-    registrator_id Int
+    registrator registrator? @relation(fields: [registrator_id], references: [id])
+    registrator_id Int?
     // date monitor
     create_date DateTime? @db.Timestamptz
     changed_date DateTime @updatedAt @db.Timestamptz

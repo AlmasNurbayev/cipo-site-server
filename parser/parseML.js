@@ -14,6 +14,7 @@ import { findImages } from './findImages.js';
 import { findPrices } from './findPrices.js';
 import { findSizes } from './findSizes.js';
 import { findOffer } from './findOffer.js';
+import { findOfferNP } from './findOfferNP.js';
 import { updateDB } from './updateDB.js';
 import { findDB } from './findDB.js';
 import { prismaI } from '../utils/prisma.js';
@@ -183,17 +184,21 @@ async function parseOffers(tx, path, file, user_id) {
     //console.log(obj_stores);
 
     logger.info('parser/parseML.js - parseOffers ' + ' - size');
-    const obj_sizes = findSizes(obj, 'Свойства', 'Размер2');
-    await recordDB(tx, 'array', 'size', obj_sizes, res_record.registrator.id);
+    const obj_sizes2 = findSizes(obj, 'Свойства', 'Размер2');
+    await recordDB(tx, 'array', 'size', obj_sizes2, res_record.registrator.id);
+    const obj_sizes3 = findSizes(obj, 'Свойства', 'Размер3');
+    console.log(obj_sizes3);
+    await recordDB(tx, 'array', 'size', obj_sizes3, res_record.registrator.id);    
 
     logger.info('parser/parseML.js - parseOffers ' + ' - offers');
     const obj_offers = await findOffer(tx, obj);
     //console.log(obj_offers);
 
-    
-        //await recordDB(tx,'array', 'price_registry', obj_offers.price, res_record.registrator.id);
-        //await recordDB(tx,'array', 'qnt_registry', obj_offers.qnt, res_record.registrator.id);
-        await recordDB(tx,'array', 'qnt_price_registry', obj_offers.qnt_price, res_record.registrator.id);
+
+        // временно await recordDB(tx,'array', 'qnt_price_registry', obj_offers.qnt_price, res_record.registrator.id);
+
+        const obj_offersNP = await findOfferNP(tx, obj);
+        //await recordDB(tx,'array', 'price_registry', obj_offersNP.price);
 
     return;
     // 
@@ -206,7 +211,8 @@ async function main(user_id) {
 
     logger.info('parser/parseML.js - main ' + 'begin ');
 
-    const newFolder = await moveUpload(process.env.mlRoute);
+    // временно const newFolder = await moveUpload(process.env.mlRoute);
+    const newFolder = process.env.mlRoute;
 
     if (newFolder === undefined) {
         logger.info('parser/parseML.js - main ' + 'moveUpload undefined');
@@ -215,9 +221,13 @@ async function main(user_id) {
     await prismaI.$transaction(async (tx) => {
         await parseImport(tx, newFolder, newFolder + '/import0_1.xml', user_id);
         await parseOffers(tx, newFolder, newFolder + '/offers0_1.xml', user_id);
-    });
+    }, 
+    {
+        maxWait: 5000, // default: 2000
+        timeout: 12000, // default: 5000
+      });
     await prismaI.$disconnect();
-    const copyImages_res = await copyImages(newFolder + '/import_files');
+    //временно const copyImages_res = await copyImages(newFolder + '/import_files');
 
     logger.info('parser/parseML.js - main ' + 'end ');
     return;

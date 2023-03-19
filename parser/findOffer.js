@@ -69,12 +69,14 @@ export async function findOffer(tx, obj) {
                     }
                 }
                 if (element2.name === 'ХарактеристикиТовара') {
-                    if (element2.elements[0].elements[1].elements[0].text == 'Размер2') {
+                    if (element2.elements[0].elements[1].elements[0].text == 'Размер2' || element2.elements[0].elements[1].elements[0].text == 'Размер3') {
                         const size_text = element2.elements[0].elements[2].elements[0].text;
                         const size_find = size_all.find(e => e.name_1c === size_text);
                         if (size_find) {
                             size_id = size_find.id;
                             size_name_1c = size_find.name_1c
+                        } else {
+                            console.log('не найден размер ' + size_text);
                         }
                     }
                 }
@@ -152,6 +154,7 @@ export async function findOffer(tx, obj) {
             if (price && price.length > 1) {
                 logger.error('parser/findOffer.js - many retail prices for ' + artikul);
                 console.log('parser/findOffer.js - many retail prices for ' + artikul);
+                console.log(JSON.stringify(res_qnt_price));
                 throw Error;
             }
             // 
@@ -168,12 +171,12 @@ export async function findOffer(tx, obj) {
             if (qnt.length==0) {
                 logger.error('parser/findOffer.js - not found qnt ' + artikul);
                 console.log('parser/findOffer.js - not found qnt ' + artikul);
-                throw Error;
+                //throw Error;
             }            
             if (res_qnt_price.length==0) {
                 logger.error('parser/findOffer.js - not found price ' + artikul);
                 console.log('parser/findOffer.js - not found price ' + artikul);
-                throw Error;
+                //throw Error;
             }   
 
             // res_price.push(price);
