@@ -13,10 +13,12 @@ export async function getProduct(request, responce) {
     const res = await getProductService(product_id, name_1c);
     if (res === null || Object.keys(res).length === 0) { // проверяем на пустой объект
         responce.status(400).send();    
+        logger.info('server / product.controller.js - 400 getProduct ended');
     } else {
         responce.status(200).json(res);
+        logger.info('server / product.controller.js - 200 getProduct ended');
     }
-    logger.info('server / product.controller.js - getProduct ended');
+    
 }   
 
 export async function getProducts(request, responce) {
@@ -64,12 +66,12 @@ export async function getProducts(request, responce) {
     
     if (res === null) {
         responce.status(400).send();    
+        logger.info('server / product.controller.js - 400 getProducts ended');
     } else {
         responce.status(200).json(res);
+        logger.info('server / product.controller.js - 200 getProducts ended');
     }
 
-    
-    logger.info('server / product.controller.js - getProducts ended');
 }
 
 export async function getProductsNews(request, responce) {
@@ -86,12 +88,12 @@ export async function getProductsNews(request, responce) {
     
     if (res === null) {
         responce.status(400).send();    
+        logger.info('server / product.controller.js - getProductsNews 400 ended');
     } else {
         responce.status(200).json(res);
+        logger.info('server / product.controller.js - getProductsNews 200 ended');
     }
 
-    
-    logger.info('server / product.controller.js - getProductsNews ended');
 }
 
 export async function getProductsFilter(request, responce) {

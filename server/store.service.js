@@ -15,10 +15,11 @@ export async function getStoreService() {
 //    if (!news || news === undefined) { news = 5 };
 
     try {
-        let query = { // выбираем последние новости по дате создания
+        let query = { // выбираем последние магазины по очереди создания
             orderBy: {
                 id: 'desc',
             },
+            where: {public: true}
         }
         let res = await prismaI.store.findMany(query);
         return res;

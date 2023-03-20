@@ -37,6 +37,7 @@ export async function findOfferNP(tx, obj) {
             let size_id = undefined;
             let size_name_1c = undefined;
             let price_vid_name_1c = undefined;
+            let price_vid_id = undefined;
             let price = [];
 
             for (const element2 of element.elements) { // цикл по узлам
@@ -64,7 +65,7 @@ export async function findOfferNP(tx, obj) {
                 if (element2.name === 'Артикул') {
                     if (element2.elements[0].text) {
                         product_artikul = element2.elements[0].text;
-                        console.log('artikul', product_artikul);
+                        //console.log('artikul', product_artikul);
                     }
                 }
                 if (element2.name === 'ХарактеристикиТовара') {
@@ -99,7 +100,7 @@ export async function findOfferNP(tx, obj) {
                                 //console.log(price_vid_id  + ' / ' +  price);
                             }
                             if (price_find.length >= 1) {
-                                console.log(price_find);
+                                //console.log(price_find);
                                 let data1 = {
                                     sum: sum,
                                     operation_date: currentDate,
@@ -109,7 +110,8 @@ export async function findOfferNP(tx, obj) {
                                     product_id: product_id,
                                     size_id: size_id,
                                     size_name_1c: size_name_1c,
-                                    price_vid_name_1c: price_find[0].name_1c
+                                    price_vid_name_1c: price_find[0].name_1c,
+                                    price_vid_id: price_find[0].id
                                 };
                                 //data = data1;
                                 price_res.push(data1);
@@ -147,7 +149,7 @@ export async function findOfferNP(tx, obj) {
     //res.price = res_price;
     //res.qnt = res_qnt;
     res.price = price_res;
-    writeLog('offersNP_res.txt', JSON.stringify(price_res));
+    //writeLog('offersNP_res.txt', JSON.stringify(price_res));
     return (res);
 
 }

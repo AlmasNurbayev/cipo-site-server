@@ -24,6 +24,19 @@ model user { // Пользователи
   order order[]
 }
 
+model subscribe {
+  id Int @id @default(autoincrement())  
+  email String? @unique
+  phone String? @unique
+  agree Boolean
+  city String?
+  wish String?
+  district String?
+  // date monitor
+  create_date DateTime? @db.Timestamptz
+  changed_date DateTime @updatedAt @db.Timestamptz
+}
+
 model product { // Товары
     id Int @id @default(autoincrement())
     id_1c String @unique // <Ид>17afd8c7-fe09-11ec-9b62-50ebf624c538</Ид>
@@ -148,6 +161,7 @@ model store { // склады в 1С, они же магазины здесь
     phone String? // заполнять самим
     city String? // заполнять самим
     image_path String? // путь до картинки
+    public Boolean? // показывать ли на сайте
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
     registrator_id Int
@@ -216,6 +230,7 @@ model price_registry { // регистр цен себестоимости
     product_id_1c String
     size_name_1c String
     price_vid_name_1c String
+    price_vid_id Int
     // foreign keys
     product product @relation(fields: [product_id], references: [id])
     product_id Int

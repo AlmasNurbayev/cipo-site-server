@@ -195,10 +195,10 @@ async function parseOffers(tx, path, file, user_id) {
     //console.log(obj_offers);
 
 
-        // временно await recordDB(tx,'array', 'qnt_price_registry', obj_offers.qnt_price, res_record.registrator.id);
+        await recordDB(tx,'array', 'qnt_price_registry', obj_offers.qnt_price, res_record.registrator.id);
 
         const obj_offersNP = await findOfferNP(tx, obj);
-        //await recordDB(tx,'array', 'price_registry', obj_offersNP.price);
+        await recordDB(tx,'array', 'price_registry', obj_offersNP.price);
 
     return;
     // 

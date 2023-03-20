@@ -91,6 +91,7 @@ export async function getProductsService(parameters) {
                 registrator_id: {
                     equals: registrator_id
                 },
+                product: {public_web: true},                
                 qnt: {
                     gt: 0,
                 },
@@ -309,6 +310,7 @@ export async function getProductsFiltersService() {
                     registrator_id: {
                         equals: registrator_id
                     },
+                    product: {public_web: true},
                     qnt: {
                         gt: 0,
                     },
@@ -396,6 +398,14 @@ export async function getProductService(product_id, name_1c) {
             },
             image_registry: {
 
+            },
+            price_registry: {
+                select: {
+                    size_id: true,
+                    size_name_1c: true,
+                    sum: true,
+                    operation_date: true,
+                }
             },
             qnt_price_registry: {
                 select: {

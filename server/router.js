@@ -5,6 +5,7 @@ import { getProduct, getProducts, getProductsFilter, getProductsNews } from './p
 import { getNews } from './news.controller.js';
 import { postOrder } from './order.controller.js';
 import { getStore } from './store.controller.js';
+import { postSubscribe } from './subscribe.controller.js';
 
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSchema } from './swagger.schema.js';
@@ -19,6 +20,7 @@ export function initRouterApi() {
     router.get('/products', getProducts);
     router.get('/productsNews', getProductsNews);
     router.get('/productsFilter', getProductsFilter);
+    router.get('/postSubscribe', postSubscribe);
     router.post('/order', postOrder); 
 
     router.use('/api-docs', swaggerUi.serve);
