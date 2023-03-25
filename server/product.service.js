@@ -436,10 +436,12 @@ export async function getProductService(product_id, name_1c) {
             res = await prismaI.product.findFirst(data);
         }
         //console.log(JSON.stringify(data));
+        if (typeof(res) === 'object') {
         if (res.hasOwnProperty('qnt_price_registry')) {
             if (res.qnt_price_registry.length > 0) {
                 res.qnt_price_registry_group = groupAndSum(res.qnt_price_registry, ['size_id', 'side_name_id', 'sum'], ['qnt'], ['store_id']);
             }
+        }
         }
         //console.log(res);
         writeLog('product' + product_id + '.txt', JSON.stringify(res));
