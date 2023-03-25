@@ -20,7 +20,7 @@ export function initRouterApi() {
     router.get('/products', getProducts);
     router.get('/productsNews', getProductsNews);
     router.get('/productsFilter', getProductsFilter);
-    router.get('/postSubscribe', postSubscribe);
+    router.post('/postSubscribe', postSubscribe);
     router.post('/order', postOrder); 
 
     router.use('/api-docs', swaggerUi.serve);
