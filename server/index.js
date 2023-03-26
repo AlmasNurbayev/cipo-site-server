@@ -28,13 +28,13 @@ let options = {
   cert: cert
 };
 
-const server = https.createServer(options, app);
+//const server = https.createServer(options, app);
 
-server.listen(port, () => {
-  console.log("server starting on port : " + port)
-});
+// server.listen(port, () => {
+//   console.log("server starting on port : " + port)
+// });
 
-// app.listen(port, ()=> {
-//     console.log('start express on port: ' + port);
-//     logger.info('server / index.js started on port ' + port);
-// })
+app.listen(port, ()=> {
+    console.log('start express on port: ' + port);
+    logger.info('server / index.js started on port ' + port);
+})

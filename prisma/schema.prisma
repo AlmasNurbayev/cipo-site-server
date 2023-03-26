@@ -162,6 +162,7 @@ model store { // склады в 1С, они же магазины здесь
     city String? // заполнять самим
     image_path String? // путь до картинки
     public Boolean? // показывать ли на сайте
+    working_hours Json? // JSON с временем работы
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
     registrator_id Int
