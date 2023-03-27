@@ -4,9 +4,9 @@ import { prismaI } from "../utils/prisma.js";
 import { logger, writeLog } from "../utils/logger.js";
 import { groupAndSum } from "./utils.js";
 import { getNames } from "./utils.js";
-import json2xls from 'json2xls';
-import fs from 'fs'
-import e from "express";
+//import json2xls from 'json2xls';
+//import fs from 'fs'
+//import e from "express";
 
 /**
  * получаем из базы последний номер регистратора, с которым в регистре есть остатки и цены
@@ -271,10 +271,10 @@ export async function getProductsService(parameters) {
 
         }
 
-        writeLog('res_qnt_price.txt', JSON.stringify(qnt_price_group));
+        //writeLog('res_qnt_price.txt', JSON.stringify(qnt_price_group));
 
-        var xls = json2xls(res_qnt_price);
-        fs.writeFileSync('logs/res_qnt_price.xlsx', xls, 'binary');
+        //var xls = json2xls(res_qnt_price);
+        //fs.writeFileSync('logs/res_qnt_price.xlsx', xls, 'binary');
         logger.info('server/product.service.js - getProductsService ended');
         return {data: qnt_price_group, full_count: res_count.length, current_count: qnt_price_group.length};
     } catch (error) {

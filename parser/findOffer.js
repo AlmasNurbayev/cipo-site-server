@@ -188,7 +188,7 @@ export async function findOffer(tx, obj) {
     //res.price = res_price;
     //res.qnt = res_qnt;
     res.qnt_price = res_qnt_price;
-    writeLog('offers_res.txt', JSON.stringify(res_qnt_price));
+    //writeLog('offers_res.txt', JSON.stringify(res_qnt_price));
     return(res);
 
 }

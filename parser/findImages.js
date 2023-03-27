@@ -16,7 +16,7 @@ export async function findImages(tx, obj) {
     const product_all = await findDB(tx, 'product', '', '', ''); // нужна уже записанная таблица продуктов из базы чтобы получить id их записей
     const image_registry_all = await findDB(tx, 'image_registry', '', '', ''); // для проверки дублей
 
-    writeLog('products_all.txt',JSON.stringify(product_all));
+    //writeLog('products_all.txt',JSON.stringify(product_all));
 
     const currentDate = formatISO(Date.now(), { representation: 'complete' });
 
@@ -46,8 +46,8 @@ export async function findImages(tx, obj) {
         }
     };
     //console.log(res);
-    writeLog('images_res.txt', JSON.stringify(res));
-    writeLog('images_updates.txt', JSON.stringify(res_update));
+    //writeLog('images_res.txt', JSON.stringify(res));
+    //writeLog('images_updates.txt', JSON.stringify(res_update));
     return  {
          record: res,
          update: res_update

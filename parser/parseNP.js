@@ -26,7 +26,7 @@ async function parseOffers(tx, path, file, user_id) {
     const xml = await fs.readFile(file);
     let result = convert.xml2json(xml);
     let obj = JSON.parse(result);
-    fs.writeFile(path + "/offers0_1.json", result);
+    //fs.writeFile(path + "/offers0_1.json", result);
 
     // logger.info('parser/parseNP.js - parseOffers ' + ' - obj_registrator');
     // const obj_registrator = findRegistrator(obj, user_id, path, file);

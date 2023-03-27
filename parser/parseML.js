@@ -81,7 +81,7 @@ async function parseImport(tx, path, file, user_id) {
     const xml = await fs.readFile(file);
     let result = convert.xml2json(xml);
     let obj = JSON.parse(result);
-    fs.writeFile(path + "/import0_1.json", result);
+    //fs.writeFile(path + "/import0_1.json", result);
 
     logger.info('parser/parseML.js - parseImport ' + ' - obj_registrator');
     const obj_registrator = findRegistrator(obj, user_id, path, file);
@@ -116,7 +116,7 @@ async function parseImport(tx, path, file, user_id) {
     // парсим и пишем таблицу товаров
     logger.info('parser/parseML.js - parseImport ' + ' - obj_product');
     let obj_product = await findProduct(tx, obj, res_record.registrator.id);
-    writeLog('products_parsing.txt', JSON.stringify(obj_product));
+    //writeLog('products_parsing.txt', JSON.stringify(obj_product));
 
     const obj_product_without_images_rec = structuredClone(obj_product.record)
     //const obj_product_without_images_rec = JSON.parse(JSON.stringify(obj_product.record)); // создаем копию массива товаров и убираем картинки, т.к. их нет в таблице product
@@ -162,7 +162,7 @@ async function parseOffers(tx, path, file, user_id) {
     const xml = await fs.readFile(file);
     let result = convert.xml2json(xml);
     let obj = JSON.parse(result);
-    fs.writeFile(path + "/offers0_1.json", result);
+    //fs.writeFile(path + "/offers0_1.json", result);
 
     logger.info('parser/parseML.js - parseOffers ' + ' - obj_registrator');
     const obj_registrator = findRegistrator(obj, user_id, path, file);
