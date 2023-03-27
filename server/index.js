@@ -21,20 +21,22 @@ app.use('/store_images',express.static('store_images'));
 app.use(express.json());
 app.use('/api', initRouterApi());
 
-let key = fs.readFileSync('./ssl/selfsigned.key');
-let cert = fs.readFileSync('./ssl/selfsigned.crt');
+let key = fs.readFileSync('./ssl/private.key');
+let cert = fs.readFileSync('./ssl/certificate.crt');
+let ca = fs.readFileSync('./ssl/ca_bundle.crt');
 let options = {
   key: key,
-  cert: cert
+  cert: cert,
+  ca: ca
 };
 
-//const server = https.createServer(options, app);
+const server = https.createServer(options, app);
 
-// server.listen(port, () => {
-//   console.log("server starting on port : " + port)
-// });
+ server.listen(port, () => {
+   console.log("server starting on port : " + port)
+ });
 
-app.listen(port, ()=> {
-    console.log('start express on port: ' + port);
-    logger.info('server / index.js started on port ' + port);
-})
+// app.listen(port, ()=> {
+//     console.log('start express on port: ' + port);
+//     logger.info('server / index.js started on port ' + port);
+// })
