@@ -116,8 +116,8 @@ export async function findProduct(tx, obj, registrator_id) {
                         obJ_image.main = true; // первая картинка становится главной
                     } else { obJ_image.main = false }
 
-                    try { // пытаемся получить размер в синхронном режиме
-                        let stat = fs.statSync(full_name);
+                    try { // пытаемся получить размер в асинхронном режиме
+                        let stat = fs.stat(full_name);
                         obJ_image.size = stat.size;
                     } catch (error) {
                         logger.error('parser/findProduct.js - file size measure ' + obJ_image.file + ' - ' + error.stack)
