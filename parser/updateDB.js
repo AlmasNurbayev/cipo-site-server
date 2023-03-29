@@ -33,7 +33,11 @@ export async function updateDB(tx, type, table, obj, where, registratorID) {
                     data: obj
                 }}            
             const res = await tx[table].update(data)
-            logger.info('parser/updateDB.js - ended ' + JSON.stringify(res));
+            if (process.env.record_log == 'false') {
+                logger.info('parser/updateDB.js - ended ');
+            } else {
+                logger.info('parser/updateDB.js - ended ' + JSON.stringify(res));
+            }            
             return res;
         } catch (error) {
             logger.error(error.stack);

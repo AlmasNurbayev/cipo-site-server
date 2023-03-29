@@ -52,7 +52,11 @@ export async function recordDB(tx, type, table, obj, registratorID) {
                     skipDuplicates: true
                 }
                 )
-                logger.info('parser/recordDB.js - ended ' + JSON.stringify(res));
+                if (process.env.record_log == 'false') {
+                    logger.info('parser/recordDB.js - ended ');
+                } else {
+                    logger.info('parser/recordDB.js - ended ' + JSON.stringify(res));
+                }
                 return res;
             } catch (error) {
                 logger.error('parser/recordDB.js' + error.stack);

@@ -210,6 +210,8 @@ async function main(user_id) {
 
     dotenv.config();
 
+  
+
     logger.info('parser/parseML.js - main ' + 'begin ');
 
     const newFolder = await moveUpload(process.env.mlRoute);
@@ -224,8 +226,8 @@ async function main(user_id) {
         await parseOffers(tx, newFolder, newFolder + '/offers0_1.xml', user_id);
     }, 
     {
-        maxWait: 4000, // default: 2000
-        timeout: 30000, // default: 5000
+        maxWait: 6000, // default: 2000
+        timeout: 40000, // default: 5000
       });
     await prismaI.$disconnect();
     const copyImages_res = await copyImages(newFolder + '/import_files');

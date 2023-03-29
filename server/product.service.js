@@ -115,7 +115,7 @@ export async function getProductsService(parameters) {
             query1.where.product_group_id = { in: parameters.product_group };
         }
         if (parameters.search_name) {
-            query1.where.product_name = { search: parameters.search_name, mode: 'insensitive'}
+            query1.where.product_name = { contains: parameters.search_name, mode: 'insensitive'}
         }
         if (parameters.vid_modeli !== undefined && parameters.vid_modeli.length != 0) {
             query1.where.vid_modeli_id = { in: parameters.vid_modeli };

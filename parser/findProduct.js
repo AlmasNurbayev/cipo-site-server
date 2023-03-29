@@ -117,10 +117,12 @@ export async function findProduct(tx, obj, registrator_id) {
                     } else { obJ_image.main = false }
 
                     try { // пытаемся получить размер в асинхронном режиме
-                        let stat = fs.stat(full_name);
-                        obJ_image.size = stat.size;
+                        await fs.stat(full_name, (error, stats) => {
+                            obJ_image.size = stats.size;
+                        });
                     } catch (error) {
-                        logger.error('parser/findProduct.js - file size measure ' + obJ_image.file + ' - ' + error.stack)
+                        console.log('parser/findProduct.js - file size measure ' + obJ_image.file + ' - ' + error.stack);
+                        logger.error('parser/findProduct.js - file size measure ' + obJ_image.file + ' - ' + error.stack);
                     }
 
                     obJ_image.main_change_date = currentDate;
