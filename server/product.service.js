@@ -596,7 +596,7 @@ export async function getProductsNewsService(news) {
                 // //element_group.image_registry = element.product.image_registry;
                 if (element.product.image_registry) {
                     element_group.image_registry = element.product.image_registry;
-                    element_group.image_active_path = element.product.image_registry[0].full_name;
+                    element_group.image_active_path = element.product.image_registry.find(e => e.main === true).full_name;
                 }
                 // element_group.date = element.product.create_date;
                 element_group.qnt_price.push({ // вложенный объект с ценами
