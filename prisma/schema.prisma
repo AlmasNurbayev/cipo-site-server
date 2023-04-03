@@ -293,7 +293,7 @@ model qnt_price_registry {
     changed_date DateTime @updatedAt @db.Timestamptz
 
     //@@index([registrator_id, product_group, product_id, size_id, sum])
-    @@index([registrator_id])
+    @@index([registrator_id, qnt, sum, product_id])
 }
 
 model image_registry { // регистр изображений товаров
