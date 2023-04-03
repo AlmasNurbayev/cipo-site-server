@@ -63,7 +63,7 @@ async function copyImages(oldPath) {
     } catch (error) {
         logger.error('parser/parseML.js - copyImages ' + error.stack);
         console.log('parser/parseML.js - copyImages ' + error.stack);
-        throw Error;
+        //throw Error;
         //return undefined;
     }
 }
