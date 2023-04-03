@@ -118,7 +118,12 @@ export async function findProduct(tx, obj, registrator_id) {
 
                     try { // пытаемся получить размер в асинхронном режиме
                         await fs.stat(full_name, (error, stats) => {
-                            obJ_image.size = stats.size;
+                            //console.log(stats);
+                            if (typeof(stats) === 'object') {
+                            if (stats.hasOwnProperty('size')) {
+                                obJ_image.size = stats.size;
+                            }
+                            }
                         });
                     } catch (error) {
                         console.log('parser/findProduct.js - file size measure ' + obJ_image.file + ' - ' + error.stack);
@@ -183,6 +188,7 @@ export async function findProduct(tx, obj, registrator_id) {
                 arr_update.push(data);
             } else {
                 arr_record.push(data);
+                //console.log(data);
             }
             
 
