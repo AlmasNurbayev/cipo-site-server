@@ -91,7 +91,7 @@ export async function getProductsService(parameters) {
                 registrator_id: {
                     equals: registrator_id
                 },
-                product: {public_web: true},                
+                //product: {public_web: true},                
                 qnt: {
                     gt: 0,
                 },
