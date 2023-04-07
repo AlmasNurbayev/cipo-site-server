@@ -131,10 +131,10 @@ export async function getProductsService(parameters) {
         /// для клиента мы должны посчитать общее кол-во строк без учета пагинации (take-skip)
         /// придется делать второй такой запрос, так как нужно группировать
         let query_count = structuredClone(query1);
-        if (query_count.hasOwn('take')) {
+        if (Object.hasOwn(query_count, 'take')) {
             delete query_count.take; 
         } 
-        if (query_count.hasOwn('skip')) {
+        if (Object.hasOwn(query_count, 'skip')) {
             delete query_count.skip; 
           }         
         let res_count = await prismaI.qnt_price_registry.groupBy(query_count);
@@ -437,7 +437,7 @@ export async function getProductService(product_id, name_1c) {
         }
         //console.log(JSON.stringify(data));
         if (typeof(res) === 'object') {
-        if (res.hasOwn('qnt_price_registry')) {
+        if (Object.hasOwn(res, 'qnt_price_registry')) {
             if (res.qnt_price_registry.length > 0) {
                 res.qnt_price_registry_group = groupAndSum(res.qnt_price_registry, ['size_id', 'size_name_id', 'sum'], ['qnt'], ['store_id']).sort((a, b)=> a.size_name_id > b.size_name_id ? 1 : -1);
             }
@@ -609,7 +609,7 @@ export async function getProductsNewsService(news) {
             }
         }
         for (const element_group of res11) {
-            if (element_group.hasOwn('qnt_price')) { // во вложенном объекте с ценами группируем повторяющиеся размеры одного продукта
+            if (Object.hasOwn(element_group, 'qnt_price')) { // во вложенном объекте с ценами группируем повторяющиеся размеры одного продукта
                 element_group.qnt_price = groupAndSum(element_group.qnt_price, ['size', 'sum'], ['qnt'], ['store_id']).sort((a, b)=> Number(a.size) > Number(b.size) ? 1 : -1);
             }
         }

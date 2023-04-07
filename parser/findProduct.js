@@ -120,7 +120,7 @@ export async function findProduct(tx, obj, registrator_id) {
                         await fs.stat(full_name, (error, stats) => {
                             //console.log(stats);
                             if (typeof(stats) === 'object') {
-                            if (stats.hasOwnProperty('size')) {
+                            if (Object.hasOwn(stats, 'size')) {
                                 obJ_image.size = stats.size;
                             }
                             }

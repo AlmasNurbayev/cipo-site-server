@@ -15,16 +15,16 @@ export async function postSubscribe(request, responce) {
     }
 
     let body = request.body;
-    if (body.hasOwnProperty('agree')) {
+    if (Object.hasOwn(body, 'agree')) {
         if (body.agree === 'true') { body.agree = true }
         if (body.agree === 'false') { body.agree = false }
     }
-    if (body.hasOwnProperty('phone')) {
+    if (Object.hasOwn(body, 'phone')) {
         if (body.phone === '') {
             body.phone = null;
         }
     }
-    if (body.hasOwnProperty('email')) {
+    if (Object.hasOwn(body, 'email')) {
         if (body.email === '') {
             body.email = null;
         }
