@@ -18,7 +18,7 @@ jobs:
         - name: get repo
           uses: actions/checkout@v3
         - name: init repo
-          #working-directory: /home/almas/js-kofd ? 
+          #working-directory: /home/almas/js-kofd ?  
           #нужно продумать, как запускать SQL если меняется структура базы
           run: |
             cd /home/cipo-site-server
