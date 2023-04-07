@@ -1,0 +1,30 @@
+name: pull and run
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [18.x]    
+    steps:
+        - name: get repo
+          uses: actions/checkout@v3
+        - name: init repo
+          #working-directory: /home/almas/js-kofd ? 
+          #нужно продумать, как запускать SQL если меняется структура базы
+          run: |
+            cd /home/cipo-site-server
+            git pull
+            npm install
+            npx prisma migrate deploy
+            pm2 restart cipo-bot
+          
+  
