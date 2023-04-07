@@ -1,6 +1,6 @@
 'useStrict';
 
-import { prismaI } from '../utils/prisma.js'
+//import { prismaI } from '../utils/prisma.js'
 import { logger } from '../utils/logger.js'
 import { formatISO } from 'date-fns';
 
@@ -31,7 +31,7 @@ export async function recordDB(tx, type, table, obj, registratorID) {
             logger.info('parser/recordDB.js - ended ' + JSON.stringify(res));
             return res;
         } catch (error) {
-            logger.error(error.stack);
+            logger.error('parser/recordDB.js' + error.stack);
             console.log(error.stack);
         }
     }

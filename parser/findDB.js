@@ -1,6 +1,6 @@
 'useStrict';
 
-import { prismaI } from '../utils/prisma.js'
+//import { prismaI } from '../utils/prisma.js'
 import { logger } from '../utils/logger.js'
 
 /**

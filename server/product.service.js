@@ -34,8 +34,8 @@ async function getLastRegistrator() {
                     registrator_id = element.registrator_id;
                     break;
                 }
-            };
-        };
+            }
+        }
         //console.log(res);
         logger.info('server/product.service.js - getLastRegistrator end');
         return registrator_id;
@@ -104,13 +104,13 @@ export async function getProductsService(parameters) {
             query1.orderBy = {
                 [parameters.sort[0]]: parameters.sort[1]
             };
-        };
+        }
         if (parameters.take) {
             query1.take = parameters.take;
-        };
+        }
         if (parameters.skip) {
             query1.skip = parameters.skip;
-        };
+        }
         if (parameters.product_group !== undefined && parameters.product_group.length != 0) {
             query1.where.product_group_id = { in: parameters.product_group };
         }
@@ -131,10 +131,10 @@ export async function getProductsService(parameters) {
         /// для клиента мы должны посчитать общее кол-во строк без учета пагинации (take-skip)
         /// придется делать второй такой запрос, так как нужно группировать
         let query_count = structuredClone(query1);
-        if (query_count.hasOwnProperty('take')) {
+        if (query_count.hasOwn('take')) {
             delete query_count.take; 
         } 
-        if (query_count.hasOwnProperty('skip')) {
+        if (query_count.hasOwn('skip')) {
             delete query_count.skip; 
           }         
         let res_count = await prismaI.qnt_price_registry.groupBy(query_count);
@@ -202,7 +202,7 @@ export async function getProductsService(parameters) {
             query2.orderBy = {
                 [parameters.sort[0]]: parameters.sort[1]
             };
-        };
+        }
         
         res_qnt_price = await prismaI.qnt_price_registry.findMany(query2)
         //console.log(res1.length);
@@ -227,10 +227,10 @@ export async function getProductsService(parameters) {
                 for (const element of res_qnt_price) { // перебираем полный массив, чтобы заполнить сгруппированный массив
                     if (element_group.product_id != element.product_id) {
                         continue;
-                    };
+                    }
                     if (element_group.sum != element.sum) {
                         continue;
-                    };
+                    }
                     delete (element_group.qnt);
                     element_group.artikul = element.product.artikul;
                     element_group.name = element.product.name_1c;
@@ -325,7 +325,7 @@ export async function getProductsFiltersService() {
             console.log('server/product.service.js - getProductsFilters ' + error.stack);
             logger.error('server/product.service.js - getProductsFilters ' + error.stack);
         }
-    };
+    }
     
     let res_size = await getTables('size_id');
     res_size = res_size.map(e => {
@@ -343,7 +343,7 @@ export async function getProductsFiltersService() {
     let res_vid_modeli = await getTables('vid_modeli_id');
 
     res_vid_modeli = res_vid_modeli.filter(e => { // удаляем null так как поле Вид модели не обязательное
-        if (e.vid_modeli_id !== null) { return e };
+        if (e.vid_modeli_id !== null) { return e }
     });
     res_vid_modeli = res_vid_modeli.map(e => {
         return e.vid_modeli_id;
@@ -437,7 +437,7 @@ export async function getProductService(product_id, name_1c) {
         }
         //console.log(JSON.stringify(data));
         if (typeof(res) === 'object') {
-        if (res.hasOwnProperty('qnt_price_registry')) {
+        if (res.hasOwn('qnt_price_registry')) {
             if (res.qnt_price_registry.length > 0) {
                 res.qnt_price_registry_group = groupAndSum(res.qnt_price_registry, ['size_id', 'size_name_id', 'sum'], ['qnt'], ['store_id']).sort((a, b)=> a.size_name_id > b.size_name_id ? 1 : -1);
             }
@@ -470,7 +470,7 @@ export async function getProductsNewsService(news) {
     console.log('get getProductsNewsService', news);
 
     try {
-        let res = [];
+        //let res = [];
         const registrator_id = await getLastRegistrator();
 
         let query1 = { // выбираем последние продукты по дате создания
@@ -573,10 +573,10 @@ export async function getProductsNewsService(news) {
             for (const element of res2) { // перебираем полный массив, чтобы заполнить сгруппированный массив
                 if (element_group.product_id != element.product_id) {
                     continue;
-                };
+                }
                 if (element_group.sum != element.sum) {
                     continue;
-                };
+                }
                 element_group.name = element.product.name_1c;
                 element_group.artikul = element.product.artikul;
                 element_group.description = element.product.description;
@@ -609,7 +609,7 @@ export async function getProductsNewsService(news) {
             }
         }
         for (const element_group of res11) {
-            if (element_group.hasOwnProperty('qnt_price')) { // во вложенном объекте с ценами группируем повторяющиеся размеры одного продукта
+            if (element_group.hasOwn('qnt_price')) { // во вложенном объекте с ценами группируем повторяющиеся размеры одного продукта
                 element_group.qnt_price = groupAndSum(element_group.qnt_price, ['size', 'sum'], ['qnt'], ['store_id']).sort((a, b)=> Number(a.size) > Number(b.size) ? 1 : -1);
             }
         }

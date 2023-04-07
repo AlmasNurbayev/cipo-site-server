@@ -1,13 +1,13 @@
 'useStrict';
 
 import express from "express";
-import { logger } from "../utils/logger.js";
+//import { logger } from "../utils/logger.js";
 import dotenv from 'dotenv';
-import {initRouterApi, initRouterStatic} from "./router.js";
+import {initRouterApi} from "./router.js";
 import cors from 'cors';
 import fs from 'fs';
 import https from 'https';
-import http from 'http';
+//import http from 'http';
 import helmet from 'helmet';
 import rateLimit, { MemoryStore } from 'express-rate-limit'
 

@@ -2,8 +2,8 @@
 
 import { findDB } from "./findDB.js";
 import { formatISO } from 'date-fns';
-import { logger, writeLog } from "../utils/logger.js";
-import { recordDB } from "./recordDB.js";
+//import { logger, writeLog } from "../utils/logger.js";
+//import { recordDB } from "./recordDB.js";
 
 /**
  * получаем объект продуктов, вытаскиваем из него подобъекты images, сопоставляем продукт из базы

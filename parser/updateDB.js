@@ -1,6 +1,6 @@
 'useStrict';
 
-import { prismaI } from '../utils/prisma.js'
+//import { prismaI } from '../utils/prisma.js'
 import { logger } from '../utils/logger.js'
 import { formatISO } from 'date-fns';
 
@@ -40,7 +40,7 @@ export async function updateDB(tx, type, table, obj, where, registratorID) {
             }            
             return res;
         } catch (error) {
-            logger.error(error.stack);
+            logger.error('parser/updateDB.js ' + error.stack);
             console.log(error.stack);
         }
     }

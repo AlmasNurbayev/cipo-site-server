@@ -13,7 +13,7 @@ export async function getNewsService(news) {
     logger.info('server/news.service.js - getNewsService start');
     console.log('get getNewsService', news);
 
-    if (!news || news === undefined) { news = 5 };
+    if (!news || news === undefined) { news = 5 }
 
     try {
         let query = { // выбираем последние новости по дате создания

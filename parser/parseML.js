@@ -98,18 +98,18 @@ async function parseImport(tx, path, file, user_id) {
     await recordDB(tx, 'array', 'product_group', obj_product_group.record, res_record.registrator.id);
     if (obj_product_group.update.length > 0) {
         for (const element of obj_product_group.update) {
-            const res_update_product_group = await updateDB(tx, 'object', 'product_group', element, { id_1c: element.id_1c }, res_record.registrator.id);
-        };
-    };
+            await updateDB(tx, 'object', 'product_group', element, { id_1c: element.id_1c }, res_record.registrator.id);
+        }
+    }
 
     logger.info('parser/parseML.js - parseImport ' + ' - obj_vid_modeli');
     const obj_vid_modeli = await findProperties(tx, obj, 'Свойства', 'ВидМодели');
     await recordDB(tx, 'array', 'vid_modeli', obj_vid_modeli.record, res_record.registrator.id);
     if (obj_vid_modeli.update.length > 0) {
         for (const element of obj_vid_modeli.update) {
-            const res_update_vid_modeli = await updateDB(tx, 'object', 'vid_modeli', element, { id_1c: element.id_1c }, res_record.registrator.id);
-        };
-    };
+            await updateDB(tx, 'object', 'vid_modeli', element, { id_1c: element.id_1c }, res_record.registrator.id);
+        }
+    }
 
     //console.log(obj_vid_modeli);
 
@@ -123,14 +123,14 @@ async function parseImport(tx, path, file, user_id) {
     obj_product_without_images_rec.forEach(element => {
         delete element.images;
     });
-    const res_record_product = await recordDB(tx, 'array', 'product', obj_product_without_images_rec, res_record.registrator.id);
+    await recordDB(tx, 'array', 'product', obj_product_without_images_rec, res_record.registrator.id);
     const obj_product_without_images_upd = JSON.parse(JSON.stringify(obj_product.update)); // создаем копию массива товаров и убираем картинки, т.к. их нет в таблице product
     if (obj_product_without_images_upd.length > 0) {
         for (const element of obj_product_without_images_upd) {
             delete element.images;
-            const res_update_product = await updateDB(tx, 'object', 'product', element, { id_1c: element.id_1c }, res_record.registrator.id);
-        };
-    };
+            await updateDB(tx, 'object', 'product', element, { id_1c: element.id_1c }, res_record.registrator.id);
+        }
+    }
 
 
     // создаем объект для таблицы картинок и пишем в БД 
@@ -138,10 +138,10 @@ async function parseImport(tx, path, file, user_id) {
     obj_product = obj_product.update.concat(obj_product.record); // соединяем 2 массива для записи и обновления 
     const obj_images = await findImages(tx, obj_product, res_record.registrator.id);
     //const res_record_images = await recordDB('array', 'image_registry', obj_images.record, res_record.registrator.id);
-    const res_record_images = await recordDB(tx, 'array', 'image_registry', obj_images.record, res_record.registrator.id);
+    await recordDB(tx, 'array', 'image_registry', obj_images.record, res_record.registrator.id);
     if (obj_images.update.length > 0) {
         for (const element of obj_images.update) {
-            const res_update_images = await updateDB(tx, 'object', 'image_registry', element, { name: element.name }, res_record.registrator.id);
+            await updateDB(tx, 'object', 'image_registry', element, { name: element.name }, res_record.registrator.id);
         }
     }
 
@@ -230,7 +230,7 @@ async function main(user_id) {
         timeout: 40000, // default: 5000
       });
     await prismaI.$disconnect();
-    const copyImages_res = await copyImages(newFolder + '/import_files');
+    await copyImages(newFolder + '/import_files');
 
     logger.info('parser/parseML.js - main ' + 'end ');
     return;
