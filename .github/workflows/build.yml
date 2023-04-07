@@ -25,6 +25,6 @@ jobs:
             git pull
             npm install
             npx prisma migrate deploy
-            pm2 restart cipo-bot
+            pm2 restart cipo-site-server
           
   
