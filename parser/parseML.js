@@ -7,16 +7,16 @@ import * as dotenv from 'dotenv'
 import { findProperties } from './findProperties.js';
 import { findRegistrator } from './findRegistrator.js';
 import { findFolder } from './findFolder.js';
-import { logger, writeLog } from '../utils/logger.js';
+import { logger } from '../utils/logger.js';
 import { recordDB } from './recordDB.js';
 import { findProduct } from './findProduct.js';
 import { findImages } from './findImages.js';
 import { findPrices } from './findPrices.js';
 import { findSizes } from './findSizes.js';
 import { findOffer } from './findOffer.js';
-import { findOfferNP } from './findOfferNP.js';
+//import { findOfferNP } from './findOfferNP.js';
 import { updateDB } from './updateDB.js';
-import { findDB } from './findDB.js';
+//import { findDB } from './findDB.js';
 import { prismaI } from '../utils/prisma.js';
 
 
