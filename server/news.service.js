@@ -29,3 +29,22 @@ export async function getNewsService(news) {
         logger.error('server/news.service.js - getNewsService ' + error.stack);
     }
 }
+
+export async function getNewsIDService(id) {
+    logger.info('server/news.service.js - getNewsIDService start');
+    console.log('get getNewsService', id);
+
+    
+    try {
+        let query = { // выбираем последние новости по дате создания
+            where: {
+                id: id
+            } 
+        }
+        let res = await prismaI.news.findUnique(query);
+        return res;
+    } catch (error) {
+        console.log('server/news.service.js - getNewsIDService ' + error.stack);
+        logger.error('server/news.service.js - getNewsIDService ' + error.stack);
+    }
+}
