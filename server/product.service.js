@@ -310,7 +310,7 @@ export async function getProductsFiltersService() {
                     registrator_id: {
                         equals: registrator_id
                     },
-                    product: {public_web: true},
+                    // product: {public_web: true},
                     qnt: {
                         gt: 0,
                     },
@@ -439,7 +439,7 @@ export async function getProductService(product_id, name_1c) {
         if (typeof(res) === 'object') {
         if (Object.hasOwn(res, 'qnt_price_registry')) {
             if (res.qnt_price_registry.length > 0) {
-                res.qnt_price_registry_group = groupAndSum(res.qnt_price_registry, ['size_id', 'size_name_id', 'sum'], ['qnt'], ['store_id']).sort((a, b)=> a.size_name_id > b.size_name_id ? 1 : -1);
+                res.qnt_price_registry_group = groupAndSum(res.qnt_price_registry, ['size_id', 'size_name_1c', 'sum'], ['qnt'], ['store_id']).sort((a, b)=> a.size_name_1c > b.size_name_1c ? 1 : -1);
             }
         }
         }
