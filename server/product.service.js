@@ -378,7 +378,7 @@ export async function getProductsFiltersService() {
 export async function getProductService(product_id, name_1c) {
 
     console.log('server/product.service.js - getProductService start ' + product_id + ' / ' + name_1c);
-    logger.error('server/product.service.js - getProductService start ' + product_id + ' / ' + name_1c);
+    logger.info('server/product.service.js - getProductService start ' + product_id + ' / ' + name_1c);
 
 
 
