@@ -444,7 +444,7 @@ export async function getProductService(product_id, name_1c) {
         }
         }
         //console.log(res);
-        writeLog('product' + product_id + '.txt', JSON.stringify(res));
+        //writeLog('product' + product_id + '.txt', JSON.stringify(res));
         return res;
     }
     catch (error) {
