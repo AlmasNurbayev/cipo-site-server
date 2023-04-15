@@ -16,8 +16,9 @@ import { formatISO } from 'date-fns';
  * @return {object | undefined} возвращает объект с кол-вом обновленных записей или undefined
  */
 export async function updateDB(tx, type, table, obj, where, registratorID) {
-    logger.info('parser/updateDB.js - starting ' + type + ' / ' + table +  ' / registrator id: ' + registratorID);
-
+    if (process.env.record_log == 'true') {
+        logger.info('parser/updateDB.js - starting ' + type + ' / ' + table +  ' / registrator id: ' + registratorID);
+    }    
     const currentDate = formatISO(Date.now(), { representation: 'complete' });
 
     if (type === 'object') {
@@ -33,9 +34,7 @@ export async function updateDB(tx, type, table, obj, where, registratorID) {
                     data: obj
                 }}            
             const res = await tx[table].update(data)
-            if (process.env.record_log == 'false') {
-                logger.info('parser/updateDB.js - ended ');
-            } else {
+            if (process.env.record_log == 'true') {
                 logger.info('parser/updateDB.js - ended ' + JSON.stringify(res));
             }            
             return res;
