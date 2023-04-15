@@ -51,4 +51,5 @@ yarn-error.log*
 /uploads
 
 product_images
+news_images
 ssl
