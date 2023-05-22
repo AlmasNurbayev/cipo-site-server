@@ -29,6 +29,7 @@ model subscribe {
   email String? @unique
   phone String? @unique
   agree Boolean
+  name String?
   city String?
   wish String?
   district String?

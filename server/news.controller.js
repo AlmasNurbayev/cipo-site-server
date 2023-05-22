@@ -21,7 +21,7 @@ export async function getNews(request, responce) {
     }
 
     
-    logger.info('server / news.contrller.js - getNews ended');
+   //logger.info('server / news.contrller.js - getNews ended');
 }
 
 export async function getNewsID(request, responce) {
