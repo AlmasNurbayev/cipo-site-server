@@ -210,9 +210,8 @@ async function main(user_id) {
 
     dotenv.config();
 
-  
-
     logger.info('parser/parseML.js - main ' + 'begin ');
+    console.log(new Date().toLocaleString("ru-RU"));
 
     const newFolder = await moveUpload(process.env.mlRoute);
     //const newFolder = process.env.mlRoute;
