@@ -15,7 +15,7 @@ import { formatISO } from 'date-fns';
 export function findRegistrator(obj, user_id, path, file) {
     const obj_registrator = {};
     obj_registrator.operation_date = formatISO(Date.now(), { representation: 'complete' });
-    obj_registrator.date_schema = obj.elements[0].attributes.ДатаФормирования;
+    obj_registrator.date_schema = obj.elements[0].attributes.ДатаФормирования+'+00:00';
     obj_registrator.ver_schema = obj.elements[0].attributes.ВерсияСхемы;
     obj_registrator.name_folder = path;
     obj_registrator.name_file = file;
