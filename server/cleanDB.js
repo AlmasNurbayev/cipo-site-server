@@ -14,7 +14,7 @@ import * as dotenv from 'dotenv';
 
 async function cleanDB() {
     dotenv.config();
-    console.log(new Date().toLocaleString("ru-RU"));
+    console.log('======== ' + new Date().toLocaleString("ru-RU"));
 
     if (process.env.clean_qnt_price === 'true') {
         logger.info('server/cleanDB.js - starting cleaning qnt_price');
