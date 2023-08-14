@@ -440,6 +440,8 @@ export async function getProductService(product_id, name_1c) {
         if (Object.hasOwn(res, 'qnt_price_registry')) {
             if (res.qnt_price_registry.length > 0) {
                 res.qnt_price_registry_group = groupAndSum(res.qnt_price_registry, ['size_id', 'size_name_1c', 'sum'], ['qnt'], ['store_id']).sort((a, b)=> a.size_name_1c > b.size_name_1c ? 1 : -1);
+            } else {
+                res.qnt_price_registry_group = [];
             }
         }
         }
