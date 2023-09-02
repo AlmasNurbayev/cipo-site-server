@@ -35,9 +35,9 @@ app.use('/api', initRouterApi(), limiter);
 //app.use(limiter);
 app.use(helmet());
 
-let key = fs.readFileSync('./ssl/2023-06/private.key');
-let cert = fs.readFileSync('./ssl/2023-06/certificate.crt');
-let ca = fs.readFileSync('./ssl/2023-06/ca_bundle.crt');
+let key = fs.readFileSync('./ssl/private.key');
+let cert = fs.readFileSync('./ssl/certificate.crt');
+let ca = fs.readFileSync('./ssl/ca_bundle.crt');
 let options = {
   key: key,
   cert: cert,
