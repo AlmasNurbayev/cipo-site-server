@@ -197,6 +197,9 @@ export async function getProductsService(parameters) {
             {
                 registrator_id: registrator_id,
                 product_id: { in: res_id }
+            },
+            orderBy: {
+                product_create_date: 'desc'
             }
         };
         if (parameters.sort) {
@@ -568,7 +571,11 @@ export async function getProductsNewsService(news) {
             {
                 registrator_id: registrator_id,
                 product_id: { in: res_id }
+            },
+            orderBy: {
+                product_create_date: 'desc'
             }
+
         };
         //console.log(registrator_id, res_id);
         let res2 = await prismaI.qnt_price_registry.findMany(query2)
