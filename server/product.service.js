@@ -82,10 +82,11 @@ export async function getProductsService(parameters) {
         let query1 = {
             select: {
                 product_id: true,
+                product_create_date: true,
             },
             by: ['product_id', 'sum', 'product_group_id', 'product_create_date', 'product_name'],
             orderBy: {
-                product_id: 'desc',
+                product_create_date: 'desc',
             },
             where: {
                 registrator_id: {
@@ -482,9 +483,9 @@ export async function getProductsNewsService(news) {
             where: {
                 public_web: true
             },
+            take: news
         }
         let res1 = await prismaI.product.findMany(query1);
-
         let res_id = []; // создам массив с id выбранных продуктов
         if (res1 !== null) {
             res_id = res1.map(e => {
@@ -496,11 +497,12 @@ export async function getProductsNewsService(news) {
             select: {
                 product_id: true,
                 product_name: true,
-                sum: true
+                sum: true,
+                product_create_date: true,
             },
-            by: ['product_id', 'product_name', 'sum'],
+            by: ['product_id', 'product_create_date' ,'product_name', 'sum'],
             orderBy: {
-                product_id: 'desc',
+                product_create_date: 'desc',
             },
             where: {
                 registrator_id: {
@@ -517,6 +519,7 @@ export async function getProductsNewsService(news) {
             take: news
         }
         let res11 = await prismaI.qnt_price_registry.groupBy(query11);
+        console.log(res11);
 
         let query2 = {  // делаем запрос по остаткам и ценам
             include: {
