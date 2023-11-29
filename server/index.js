@@ -10,6 +10,7 @@ import https from 'https';
 //import http from 'http';
 import helmet from 'helmet';
 import rateLimit, { MemoryStore } from 'express-rate-limit'
+import client from 'prom-client'; 
 
 dotenv.config();
 
@@ -21,9 +22,14 @@ const limiter = rateLimit({
 	store: new MemoryStore(),
 });
 
-// Apply the rate limiting middleware to all requests
-
-
+const register = new client.Registry();
+client.collectDefaultMetrics({
+  app: 'node-application-monitoring-app',
+  prefix: 'node_',
+  timeout: 10000,
+  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
+  register
+});
 
 const app = express();
 app.use(cors());
@@ -32,18 +38,21 @@ app.use('/news_images',express.static('news_images'));
 app.use('/store_images',express.static('store_images'));
 app.use(express.json());
 app.use('/api', initRouterApi(), limiter);
+app.get('/metrics', async (req, res) => {
+  res.setHeader('Content-Type', register.contentType);
+  res.send(await register.metrics());
+});
 //app.use(limiter);
 app.use(helmet());
 
-let key = fs.readFileSync('./ssl/private.key');
-let cert = fs.readFileSync('./ssl/certificate.crt');
-let ca = fs.readFileSync('./ssl/ca_bundle.crt');
-let options = {
+const key = fs.readFileSync('./ssl/2023-11/private.key');
+const cert = fs.readFileSync('./ssl/2023-11/certificate.crt');
+const ca = fs.readFileSync('./ssl/2023-11/ca_bundle.crt');
+const options = {
   key: key,
   cert: cert,
   ca: ca
 };
-
 const server = https.createServer(options, app);
 
  server.listen(port, () => {

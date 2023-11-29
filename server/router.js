@@ -10,8 +10,6 @@ import { getSubscribes, postSubscribe } from './subscribe.controller.js';
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSchema } from './swagger.schema.js';
 
-
-
 export function initRouterApi() {
     const router = new Router();
     router.get('/product', getProduct); 
@@ -28,7 +26,6 @@ export function initRouterApi() {
 
     router.use('/api-docs', swaggerUi.serve);
     router.get('/api-docs', swaggerUi.setup(swaggerSchema.schema));
-
     return router; 
 }
 
