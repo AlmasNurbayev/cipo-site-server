@@ -10,7 +10,10 @@ import https from 'https';
 //import http from 'http';
 import helmet from 'helmet';
 import rateLimit, { MemoryStore } from 'express-rate-limit'
-import client from 'prom-client'; 
+//import registerPromClient from 'prom/register.js'; 
+import client from 'prom-client'
+import { endTiming } from './prom/end_timing.js';
+import { startTiming } from "./prom/start_timing.js";
 
 dotenv.config();
 
@@ -21,29 +24,49 @@ const limiter = rateLimit({
 	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 	store: new MemoryStore(),
 });
-
 const register = new client.Registry();
 client.collectDefaultMetrics({
   app: 'node-application-monitoring-app',
   prefix: 'node_',
   timeout: 10000,
   gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
-  register
+  register,
 });
+export const http_request_duration_milliseconds  = new client.Histogram({
+  name: 'myapp_http_request_duration_milliseconds',
+  help: 'Duration of HTTP requests in milliseconds',
+  labelNames: ['method', 'route', 'statusCode'],
+  buckets: [1,10,50,100,200,500,1000],
+});
+register.registerMetric(http_request_duration_milliseconds );
 
 const app = express();
 app.use(cors());
-app.use('/product_images',express.static('product_images'));
-app.use('/news_images',express.static('news_images'));
-app.use('/store_images',express.static('store_images'));
+app.use(startTiming);
+app.use( ( req, res, next ) => {
+  // для перехвата всех ответов в конце цепочки
+  res.on( 'finish', () => endTiming( req, res, next ) );
+  next();
+});
+// TODO: fix helmet, do not load images 
+// app.use(helmet({
+//   contentSecurityPolicy: false,
+//   },
+// ));
+app.use('/product_images', express.static('product_images'));
+app.use('/news_images', express.static('news_images'));
+app.use('/store_images', express.static('store_images'));
+
 app.use(express.json());
 app.use('/api', initRouterApi(), limiter);
 app.get('/metrics', async (req, res) => {
   res.setHeader('Content-Type', register.contentType);
   res.send(await register.metrics());
 });
+
+
 //app.use(limiter);
-app.use(helmet());
+
 
 const key = fs.readFileSync('./ssl/2023-11/private.key');
 const cert = fs.readFileSync('./ssl/2023-11/certificate.crt');

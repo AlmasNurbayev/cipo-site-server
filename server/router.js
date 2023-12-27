@@ -12,6 +12,7 @@ import { swaggerSchema } from './swagger.schema.js';
 
 export function initRouterApi() {
     const router = new Router();
+    //router.use(startTiming); 
     router.get('/product', getProduct); 
     router.get('/news', getNews); 
     router.get('/newsID', getNewsID); 
@@ -26,6 +27,7 @@ export function initRouterApi() {
 
     router.use('/api-docs', swaggerUi.serve);
     router.get('/api-docs', swaggerUi.setup(swaggerSchema.schema));
+    
     return router; 
 }
 

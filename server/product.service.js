@@ -54,9 +54,9 @@ async function getLastRegistrator() {
  * @return {array} возвращаем массив объектов (товаров) с реквизитами согласно схеме
  */
 export async function getProductsService(parameters) {
-    logger.info('server/product.service.js - getProductsService start');
+    //logger.info('server/product.service.js - getProductsService start');
 
-    console.log('get query product ' + JSON.stringify(parameters));
+    //console.log('get query product ' + JSON.stringify(parameters));
 
     const registrator_id = await getLastRegistrator();
 
@@ -381,8 +381,8 @@ export async function getProductsFiltersService() {
  */
 export async function getProductService(product_id, name_1c) {
 
-    console.log('server/product.service.js - getProductService start ' + product_id + ' / ' + name_1c);
-    logger.info('server/product.service.js - getProductService start ' + product_id + ' / ' + name_1c);
+    //console.log('server/product.service.js - getProductService start ' + product_id + ' / ' + name_1c);
+    //logger.info('server/product.service.js - getProductService start ' + product_id + ' / ' + name_1c);
 
 
 
@@ -472,8 +472,8 @@ export async function getProductsNewsService(news) {
         news = 10;
     }
     
-    logger.info('server/product.service.js - getProductsNewsService start');
-    console.log('get getProductsNewsService', news);
+    //logger.info('server/product.service.js - getProductsNewsService start');
+    //console.log('get getProductsNewsService', news);
 
     try {
         //let res = [];
@@ -522,7 +522,7 @@ export async function getProductsNewsService(news) {
             take: news
         }
         let res11 = await prismaI.qnt_price_registry.groupBy(query11);
-        console.log(res11);
+        //console.log(res11);
 
         let query2 = {  // делаем запрос по остаткам и ценам
             include: {

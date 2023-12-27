@@ -2,26 +2,29 @@
 
 import { logger } from "../utils/logger.js";
 import { getProductsService, getProductsFiltersService, getProductService, getProductsNewsService } from "./product.service.js";
+import { endTiming } from "./prom/end_timing.js";
 
-export async function getProduct(request, responce) {
-    logger.info('server / product.controller.js - getProduct receive query: ' + JSON.stringify(request.query));
-    console.log('server / product.controller.js - getProduct receive query: ' + JSON.stringify(request.query));
+export async function getProduct(request, responce, next) {
+    //logger.info('server / product.controller.js - getProduct receive query: ' + JSON.stringify(request.query));
+    //console.log('server / product.controller.js - getProduct receive query: ' + JSON.stringify(request.query));
     let { id, name_1c } = request.query;    
     
     const product_id = parseInt(id);
 
     const res = await getProductService(product_id, name_1c);
     if (res === null || Object.keys(res).length === 0) { // проверяем на пустой объект
+        
         responce.status(400).send();    
-        logger.info('server / product.controller.js - 400 getProduct ended');
+        //logger.info('server / product.controller.js - 400 getProduct ended');
     } else {
+        
         responce.status(200).json(res);
-        logger.info('server / product.controller.js - 200 getProduct ended');
+        //logger.info('server / product.controller.js - 200 getProduct ended');
     }
     
 }   
 
-export async function getProducts(request, responce) {
+export async function getProducts(request, responce, next) {
     logger.info('server / product.controller.js - getProducts receive query: ' + JSON.stringify(request.query));
 
     let { size, product_group, brend, take, skip, sort, maxPrice, minPrice, vid_modeli, search_name  } = request.query;
@@ -65,16 +68,18 @@ export async function getProducts(request, responce) {
     const res = await getProductsService({vid_modeli: vid_modeli, size: size, product_group: product_group, brend: brend, minPrice: minPrice, maxPrice: maxPrice , take: take, skip: skip, sort: sort, search_name: search_name});
     
     if (res === null) {
+        
         responce.status(400).send();    
-        logger.info('server / product.controller.js - 400 getProducts ended');
+        //logger.info('server / product.controller.js - 400 getProducts ended');
     } else {
+        
         responce.status(200).json(res);
-        logger.info('server / product.controller.js - 200 getProducts ended');
+        //logger.info('server / product.controller.js - 200 getProducts ended');
     }
 
 }
 
-export async function getProductsNews(request, responce) {
+export async function getProductsNews(request, responce, next) {
     logger.info('server / product.controller.js - getProductsNews receive query: ' + JSON.stringify(request.query));
 
     let { news } = request.query;
@@ -87,18 +92,23 @@ export async function getProductsNews(request, responce) {
     const res = await getProductsNewsService(news);
     
     if (res === null) {
+        
         responce.status(400).send();    
-        logger.info('server / product.controller.js - getProductsNews 400 ended');
+        
+        //logger.info('server / product.controller.js - getProductsNews 400 ended');
     } else {
+        
         responce.status(200).json(res);
-        logger.info('server / product.controller.js - getProductsNews 200 ended');
+        
+        //logger.info('server / product.controller.js - getProductsNews 200 ended');
     }
 
 }
 
-export async function getProductsFilter(request, responce) {
-    logger.info('server / product.controller.js - getProductsFilter receive query: ' + JSON.stringify(request.query));
+export async function getProductsFilter(request, responce, next) {
+    //logger.info('server / product.controller.js - getProductsFilter receive query: ' + JSON.stringify(request.query));
     const res = await getProductsFiltersService();
+    
     responce.status(200).json(res);
-    logger.info('server / product.controller.js - getProductsFilter ended');
+    //logger.info('server / product.controller.js - getProductsFilter ended');
 }

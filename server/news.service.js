@@ -31,8 +31,8 @@ export async function getNewsService(news) {
 }
 
 export async function getNewsIDService(id) {
-    logger.info('server/news.service.js - getNewsIDService start');
-    console.log('get getNewsService', id);
+    //logger.info('server/news.service.js - getNewsIDService start');
+    //console.log('get getNewsService', id);
 
     
     try {
