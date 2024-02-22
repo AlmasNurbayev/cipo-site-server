@@ -68,16 +68,15 @@ app.get('/metrics', async (req, res) => {
 //app.use(limiter);
 
 
-// const key = fs.readFileSync('./ssl/2023-11/private.key');
-// const cert = fs.readFileSync('./ssl/2023-11/certificate.crt');
-// const ca = fs.readFileSync('./ssl/2023-11/ca_bundle.crt');
-// const options = {
-//   key: key,
-//   cert: cert,
-//   ca: ca
-// };
-//const server = https.createServer(options, app);
-const server = http.createServer(app);
+const key = fs.readFileSync('./ssl/private.key');
+const cert = fs.readFileSync('./ssl/certificate.crt');
+const ca = fs.readFileSync('./ssl/ca_bundle.crt');
+const options = {
+  key: key,
+  cert: cert,
+  ca: ca
+};
+const server = https.createServer(options, app);
 
  server.listen(port, () => {
    console.log("server starting on port : " + port)
