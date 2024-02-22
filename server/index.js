@@ -7,7 +7,7 @@ import {initRouterApi} from "./router.js";
 import cors from 'cors';
 import fs from 'fs';
 import https from 'https';
-//import http from 'http';
+import http from 'http';
 import helmet from 'helmet';
 import rateLimit, { MemoryStore } from 'express-rate-limit'
 //import registerPromClient from 'prom/register.js'; 
@@ -68,15 +68,16 @@ app.get('/metrics', async (req, res) => {
 //app.use(limiter);
 
 
-const key = fs.readFileSync('./ssl/2023-11/private.key');
-const cert = fs.readFileSync('./ssl/2023-11/certificate.crt');
-const ca = fs.readFileSync('./ssl/2023-11/ca_bundle.crt');
-const options = {
-  key: key,
-  cert: cert,
-  ca: ca
-};
-const server = https.createServer(options, app);
+// const key = fs.readFileSync('./ssl/2023-11/private.key');
+// const cert = fs.readFileSync('./ssl/2023-11/certificate.crt');
+// const ca = fs.readFileSync('./ssl/2023-11/ca_bundle.crt');
+// const options = {
+//   key: key,
+//   cert: cert,
+//   ca: ca
+// };
+//const server = https.createServer(options, app);
+const server = http.createServer(app);
 
  server.listen(port, () => {
    console.log("server starting on port : " + port)
