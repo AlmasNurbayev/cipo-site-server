@@ -17,7 +17,9 @@ import { startTiming } from "./prom/start_timing.js";
 
 dotenv.config();
 
-const port = process.env.PORT_EXPRESS;
+const portHTTP = process.env.PORT_HTTP;
+const portHTTPS = process.env.PORT_HTTPS;
+
 const limiter = rateLimit({
 	windowMs: 1 * 60 * 1000, // 1 minutes
 	max: 50, // Limit each IP to  requests per `window`
@@ -76,11 +78,21 @@ const options = {
   cert: cert,
   ca: ca
 };
-const server = https.createServer(options, app);
 
- server.listen(port, () => {
-   console.log("server starting on port : " + port)
+const serverHTTP = http.createServer(app);
+const serverHTTPS = https.createServer(options, app);
+
+serverHTTPS.listen(portHTTPS, () => {
+   console.log(`server HTTPS starting on port: ${portHTTPS}`);
+   console.log(JSON.stringify(serverHTTPS.address()));
  });
+
+ serverHTTP.listen(portHTTP, '0.0.0.0', () => {
+  console.log(`server HTTP for inside connections starting on port: ${portHTTP}`);
+  console.log(JSON.stringify(serverHTTP.address()));
+});
+
+ 
 
 // app.listen(port, ()=> {
 //     console.log('start express on port: ' + port);

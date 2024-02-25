@@ -14,7 +14,7 @@ import { getNames } from "./utils.js";
   * @return {number} возвращаем id регистратора
  */
 async function getLastRegistrator() {
-    logger.info('server/product.service.js - getLastRegistrator start');
+    //logger.info('server/product.service.js - getLastRegistrator start');
     let registrator_id = undefined;
 
     try {
@@ -37,7 +37,7 @@ async function getLastRegistrator() {
             }
         }
         //console.log(res);
-        logger.info('server/product.service.js - getLastRegistrator end');
+        //logger.info('server/product.service.js - getLastRegistrator end');
         return registrator_id;
     }
     catch (error) {
@@ -279,7 +279,7 @@ export async function getProductsService(parameters) {
 
         //var xls = json2xls(res_qnt_price);
         //fs.writeFileSync('logs/res_qnt_price.xlsx', xls, 'binary');
-        logger.info('server/product.service.js - getProductsService ended');
+        //logger.info('server/product.service.js - getProductsService ended');
         return {data: qnt_price_group, full_count: res_count.length, current_count: qnt_price_group.length};
     } catch (error) {
         logger.error('server/product.service.js - getProductsService ' + error.stack);
@@ -294,7 +294,7 @@ export async function getProductsService(parameters) {
  * @return {object} возвращаем объект с массивами size, brend, товарными группами, ценами
  */
 export async function getProductsFiltersService() {
-    logger.info('server/product.service.js - getProductsFilters start');
+    //logger.info('server/product.service.js - getProductsFilters start');
     let obj_all = {};
     const registrator_id = await getLastRegistrator();
 
@@ -368,7 +368,7 @@ export async function getProductsFiltersService() {
     obj_all.store = await getNames('store', res_store, 'name_1c');
 
 
-    logger.info('server/product.service.js - getProductsFilters end');
+    //logger.info('server/product.service.js - getProductsFilters end');
     return obj_all;
 
 }

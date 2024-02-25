@@ -9,7 +9,7 @@ import { logger } from "../utils/logger.js";
  */
 
 export async function getStoreService() {
-    logger.info('server/store.service.js - getStoreService start');
+    //logger.info('server/store.service.js - getStoreService start');
     //console.log('get getStoreService');
 
 //    if (!news || news === undefined) { news = 5 };

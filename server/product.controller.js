@@ -25,7 +25,7 @@ export async function getProduct(request, responce, next) {
 }   
 
 export async function getProducts(request, responce, next) {
-    logger.info('server / product.controller.js - getProducts receive query: ' + JSON.stringify(request.query));
+    //logger.info('server / product.controller.js - getProducts receive query: ' + JSON.stringify(request.query));
 
     let { size, product_group, brend, take, skip, sort, maxPrice, minPrice, vid_modeli, search_name  } = request.query;
     // [ '31', ' 32' ] [ 1, 3 ] [ 4, 5 ] [ 10000, 50000 ]
@@ -80,7 +80,7 @@ export async function getProducts(request, responce, next) {
 }
 
 export async function getProductsNews(request, responce, next) {
-    logger.info('server / product.controller.js - getProductsNews receive query: ' + JSON.stringify(request.query));
+    //logger.info('server / product.controller.js - getProductsNews receive query: ' + JSON.stringify(request.query));
 
     let { news } = request.query;
     // [ '31', ' 32' ] [ 1, 3 ] [ 4, 5 ] [ 10000, 50000 ]
