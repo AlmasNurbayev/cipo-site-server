@@ -55,9 +55,9 @@ app.use( ( req, res, next ) => {
 //   contentSecurityPolicy: false,
 //   },
 // ));
-app.use('/product_images', express.static('product_images'));
-app.use('/news_images', express.static('news_images'));
-app.use('/store_images', express.static('store_images'));
+// app.use('/product_images', express.static('product_images'));
+// app.use('/news_images', express.static('news_images'));
+// app.use('/store_images', express.static('store_images'));
 
 app.use(express.json());
 app.use('/api', initRouterApi(), limiter);
