@@ -26,5 +26,5 @@ export async function getStore(request, responce, next) {
     }
 
     
-    logger.info('server / store.contrller.js - getStore ended');
+    //logger.info('server / store.contrller.js - getStore ended');
 }
