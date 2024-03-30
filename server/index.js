@@ -51,10 +51,10 @@ app.use( ( req, res, next ) => {
   next();
 });
 // TODO: fix helmet, do not load images 
-// app.use(helmet({
-//   contentSecurityPolicy: false,
-//   },
-// ));
+app.use(helmet({
+  contentSecurityPolicy: false,
+  },
+));
 // app.use('/product_images', express.static('product_images'));
 // app.use('/news_images', express.static('news_images'));
 // app.use('/store_images', express.static('store_images'));
@@ -66,9 +66,7 @@ app.get('/metrics', async (req, res) => {
   res.send(await register.metrics());
 });
 
-
-//app.use(limiter);
-
+app.use(limiter);
 
 const key = fs.readFileSync('./ssl/private.key');
 const cert = fs.readFileSync('./ssl/certificate.crt');
