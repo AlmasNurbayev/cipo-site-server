@@ -16,7 +16,7 @@ import { formatISO } from 'date-fns';
  * @return {object | undefined} возвращает объект с количеством вставленных записей или undefined
  */
 export async function recordDB(tx, type, table, obj, registratorID) {
-    logger.info('parser/recordDB.js - starting ' + type + ' / ' + table +  ' / registrator id: ' + registratorID);
+    //logger.info('parser/recordDB.js - starting ' + type + ' / ' + table +  ' / registrator id: ' + registratorID);
 
     const currentDate = formatISO(Date.now(), { representation: 'complete' });
 
@@ -28,7 +28,7 @@ export async function recordDB(tx, type, table, obj, registratorID) {
                 data: obj
             }
             )
-            logger.info('parser/recordDB.js - ended ' + JSON.stringify(res));
+            //logger.info('parser/recordDB.js - ended ' + JSON.stringify(res));
             return res;
         } catch (error) {
             logger.error('parser/recordDB.js' + error.stack);
@@ -53,9 +53,9 @@ export async function recordDB(tx, type, table, obj, registratorID) {
                 }
                 )
                 if (process.env.record_log == 'false') {
-                    logger.info('parser/recordDB.js - ended ');
+                    //logger.info('parser/recordDB.js - ended ');
                 } else {
-                    logger.info('parser/recordDB.js - ended ' + JSON.stringify(res));
+                    //logger.info('parser/recordDB.js - ended ' + JSON.stringify(res));
                 }
                 return res;
             } catch (error) {

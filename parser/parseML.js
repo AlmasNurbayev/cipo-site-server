@@ -83,16 +83,16 @@ async function parseImport(tx, path, file, user_id) {
     let obj = JSON.parse(result);
     //fs.writeFile(path + "/import0_1.json", result);
 
-    logger.info('parser/parseML.js - parseImport ' + ' - obj_registrator');
+    //logger.info('parser/parseML.js - parseImport ' + ' - obj_registrator');
     const obj_registrator = findRegistrator(obj, user_id, path, file);
     //console.log(obj_registrator);
-    logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
+    //logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
     const res_record = {};
     res_record.registrator = await recordDB(tx, 'object', 'registrator', obj_registrator);
     //console.log(res_record.registrator);
 
 
-    logger.info('parser/parseML.js - parseImport ' + ' - obj_product_group');
+    //logger.info('parser/parseML.js - parseImport ' + ' - obj_product_group');
     const obj_product_group = await findProperties(tx, obj, 'Свойства', 'ТоварнаяГруппа');
     //writeLog('product_group.txt',JSON.stringify(obj_product_group));
     await recordDB(tx, 'array', 'product_group', obj_product_group.record, res_record.registrator.id);
@@ -102,7 +102,7 @@ async function parseImport(tx, path, file, user_id) {
         }
     }
 
-    logger.info('parser/parseML.js - parseImport ' + ' - obj_vid_modeli');
+    //logger.info('parser/parseML.js - parseImport ' + ' - obj_vid_modeli');
     const obj_vid_modeli = await findProperties(tx, obj, 'Свойства', 'ВидМодели');
     await recordDB(tx, 'array', 'vid_modeli', obj_vid_modeli.record, res_record.registrator.id);
     if (obj_vid_modeli.update.length > 0) {
@@ -114,7 +114,7 @@ async function parseImport(tx, path, file, user_id) {
     //console.log(obj_vid_modeli);
 
     // парсим и пишем таблицу товаров
-    logger.info('parser/parseML.js - parseImport ' + ' - obj_product');
+    //logger.info('parser/parseML.js - parseImport ' + ' - obj_product');
     let obj_product = await findProduct(tx, obj, res_record.registrator.id);
     //writeLog('products_parsing.txt', JSON.stringify(obj_product));
 
@@ -164,34 +164,34 @@ async function parseOffers(tx, path, file, user_id) {
     let obj = JSON.parse(result);
     //fs.writeFile(path + "/offers0_1.json", result);
 
-    logger.info('parser/parseML.js - parseOffers ' + ' - obj_registrator');
+    //logger.info('parser/parseML.js - parseOffers ' + ' - obj_registrator');
     const obj_registrator = findRegistrator(obj, user_id, path, file);
     //console.log(obj_registrator);
 
-    logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
+    //logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
     const res_record = {};
     res_record.registrator = await recordDB(tx, 'object', 'registrator', obj_registrator);
 
-    console.log(res_record.registrator);
-    logger.info('parser/parseML.js - parseOffers ' + ' - prices');
+    //console.log(res_record.registrator);
+    //logger.info('parser/parseML.js - parseOffers ' + ' - prices');
     const obj_prices = findPrices(obj, 'ПакетПредложений', 'ТипыЦен', res_record.registrator.id);
     await recordDB(tx, 'array', 'price_vid', obj_prices, res_record.registrator.id);
     //console.log(obj_prices);
 
-    logger.info('parser/parseML.js - parseOffers ' + ' - stores');
+    //logger.info('parser/parseML.js - parseOffers ' + ' - stores');
     const obj_stores = findFolder(obj, 'ПакетПредложений', 'Склады', res_record.registrator.id);
     await recordDB(tx, 'array', 'store', obj_stores, res_record.registrator.id);
     //await recordDB('array', 'price_vid', obj_prices, res_record.registrator.id);
     //console.log(obj_stores);
 
-    logger.info('parser/parseML.js - parseOffers ' + ' - size');
+    //logger.info('parser/parseML.js - parseOffers ' + ' - size');
     const obj_sizes2 = findSizes(obj, 'Свойства', 'Размер2');
     await recordDB(tx, 'array', 'size', obj_sizes2, res_record.registrator.id);
     const obj_sizes3 = findSizes(obj, 'Свойства', 'Размер3');
     console.log(obj_sizes3);
     await recordDB(tx, 'array', 'size', obj_sizes3, res_record.registrator.id);    
 
-    logger.info('parser/parseML.js - parseOffers ' + ' - offers');
+    //logger.info('parser/parseML.js - parseOffers ' + ' - offers');
     const obj_offers = await findOffer(tx, obj);
     //console.log(obj_offers);
 
