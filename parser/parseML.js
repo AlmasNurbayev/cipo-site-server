@@ -85,7 +85,7 @@ async function parseImport(tx, path, file, user_id) {
 
     //logger.info('parser/parseML.js - parseImport ' + ' - obj_registrator');
     const obj_registrator = findRegistrator(obj, user_id, path, file);
-    //console.log(obj_registrator);
+    console.log('parseImport registrator',obj_registrator);
     //logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
     const res_record = {};
     res_record.registrator = await recordDB(tx, 'object', 'registrator', obj_registrator);
@@ -166,7 +166,7 @@ async function parseOffers(tx, path, file, user_id) {
 
     //logger.info('parser/parseML.js - parseOffers ' + ' - obj_registrator');
     const obj_registrator = findRegistrator(obj, user_id, path, file);
-    //console.log(obj_registrator);
+    console.log('parseOffers registrator',obj_registrator);
 
     //logger.info('parser/parseML.js - parseImport ' + ' record to DB - registrator');
     const res_record = {};
