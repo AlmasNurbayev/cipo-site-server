@@ -166,6 +166,7 @@ model store { // склады в 1С, они же магазины здесь
     working_hours Json? // JSON с временем работы
     yandex_widget_url String?
     doublegis_widget_url String?
+    store_kaspi_id String?
     // foreign keys
     registrator registrator @relation(fields: [registrator_id], references: [id])
     registrator_id Int

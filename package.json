@@ -37,7 +37,8 @@
     "prom-client": "^15.0.0",
     "swagger-ui-express": "^4.6.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.2/xlsx-0.19.2.tgz",
-    "xml-js": "^1.6.11"
+    "xml-js": "^1.6.11",
+    "xmlbuilder": "^15.1.1"
   },
   "devDependencies": {
     "prisma": "^4.11.0"

@@ -51,4 +51,5 @@ yarn-error.log*
 /uploads
 
 product_images
+shared_price/last_price.xml
 ssl
