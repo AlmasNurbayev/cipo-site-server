@@ -37,7 +37,7 @@ client.collectDefaultMetrics({
 export const http_request_duration_milliseconds  = new client.Histogram({
   name: 'myapp_http_request_duration_milliseconds',
   help: 'Duration of HTTP requests in milliseconds',
-  labelNames: ['method', 'route', 'statusCode'],
+  labelNames: ['method', 'route', 'statusCode', 'originalUrl'],
   buckets: [1,10,50,100,200,500,1000],
 });
 register.registerMetric(http_request_duration_milliseconds );
