@@ -47,7 +47,7 @@ export const http_request_duration_milliseconds = new client.Histogram({
   buckets: [1, 10, 50, 100, 200, 500, 1000],
 });
 register.registerMetric(http_request_duration_milliseconds);
-const httpRequestCounter = new client.Counter({
+export const httpRequestCounter = new client.Counter({
   name: 'http_requests_total',
   help: 'Total number of HTTP requests',
   labelNames: ['method', 'route', 'statusCode', 'originalUrl'],
@@ -56,30 +56,17 @@ register.registerMetric(httpRequestCounter);
 
 const app = express();
 app.use(cors());
-app.use((req, res, next) => {
-  httpRequestCounter.inc({
-    method: req.method,
-    statusCode: res.statusCode,
-    route: req.path,
-    originalUrl: req.originalUrl,
-  });
-  next();
-});
 app.use(startTiming);
 app.use((req, res, next) => {
   // для перехвата всех ответов в конце цепочки
   res.on('finish', () => endTiming(req, res, next));
   next();
 });
-// TODO: fix helmet, do not load images
 app.use(
   helmet({
     contentSecurityPolicy: false,
   })
 );
-// app.use('/product_images', express.static('product_images'));
-// app.use('/news_images', express.static('news_images'));
-// app.use('/store_images', express.static('store_images'));
 
 app.use(express.json());
 app.use('/api', initRouterApi(), limiter);
