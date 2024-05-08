@@ -77,25 +77,25 @@ app.get('/metrics', async (req, res) => {
 
 app.use(limiter);
 
-const key = fs.readFileSync('./ssl/private.key');
-const cert = fs.readFileSync('./ssl/certificate.crt');
-const ca = fs.readFileSync('./ssl/ca_bundle.crt');
-const options = {
-  key: key,
-  cert: cert,
-  ca: ca,
-};
+// const key = fs.readFileSync('./ssl/private.key');
+// const cert = fs.readFileSync('./ssl/certificate.crt');
+// const ca = fs.readFileSync('./ssl/ca_bundle.crt');
+// const options = {
+//   key: key,
+//   cert: cert,
+//   ca: ca,
+// };
 
 const serverHTTP = http.createServer(app);
-const serverHTTPS = https.createServer(options, app);
+// const serverHTTPS = https.createServer(options, app);
 
-serverHTTPS.listen(portHTTPS, () => {
-  console.log(
-    formatISO(Date.now(), { representation: 'complete' }),
-    `server HTTPS starting on port: ${portHTTPS}`
-  );
-  console.log(JSON.stringify(serverHTTPS.address()));
-});
+// serverHTTPS.listen(portHTTPS, () => {
+//   console.log(
+//     formatISO(Date.now(), { representation: 'complete' }),
+//     `server HTTPS starting on port: ${portHTTPS}`
+//   );
+//   console.log(JSON.stringify(serverHTTPS.address()));
+// });
 
 serverHTTP.listen(portHTTP, '0.0.0.0', () => {
   console.log(
