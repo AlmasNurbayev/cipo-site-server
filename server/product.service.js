@@ -255,7 +255,7 @@ export async function getProductsService(parameters) {
                     //element_group.image_registry = element.product.image_registry;
                     element_group.image_registry = element.product.image_registry;
                     if (element.product.image_registry) {
-                        element_group.image_active_path = element.product.image_registry.find(e => e.main === true).full_name;
+                        element_group.image_active_path = element.product.image_registry.find(e => e.main === true)?.full_name;
                     }
                     element_group.create_date = element.product.create_date;
                     element_group.qnt_price.push({ // вложенный объект с ценами
