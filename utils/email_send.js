@@ -3,7 +3,7 @@ import { SMTPClient } from 'emailjs';
 import { logger } from '../utils/logger.js';
 
 /**
- * находим папку oldPath и переименовываем в папку с датой-временем
+ * отправляем email с заданными полями, параметры подключения загружаются из env
  * @function
  * @param {object} obj - объект с полями text, from, to, subject 
  * @return {Bool} возвращаем boolean - true - если успешно
