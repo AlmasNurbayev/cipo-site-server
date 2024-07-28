@@ -154,29 +154,28 @@ export async function findOffer(tx, obj) {
             if (price && price.length > 1) {
                 logger.error('parser/findOffer.js - many retail prices for ' + artikul);
                 console.log('parser/findOffer.js - many retail prices for ' + artikul);
-                console.log(JSON.stringify(res_qnt_price));
-                throw Error;
+                throw new Error('parser/findOffer.js - many retail prices for ' + artikul);
             }
             // 
             if (!product_id) {
                 logger.error('parser/findOffer.js - not found product ' + artikul);
                 console.log('parser/findOffer.js - not found product ' + artikul);
-                throw Error;
+                throw new Error('parser/findOffer.js - not found product ' + artikul);
             }
             if (!size_id) {
                 logger.error('parser/findOffer.js - not found size ' + artikul);
                 console.log('parser/findOffer.js - not found size ' + artikul);
-                throw Error;
+                throw new Error('parser/findOffer.js - not found size ' + artikul);
             }
             if (qnt.length==0) {
                 logger.error('parser/findOffer.js - not found qnt ' + artikul);
                 console.log('parser/findOffer.js - not found qnt ' + artikul);
-                //throw Error;
+                throw new Error('parser/findOffer.js - not found qnt ' + artikul);
             }            
             if (res_qnt_price.length==0) {
                 logger.error('parser/findOffer.js - not found price ' + artikul);
                 console.log('parser/findOffer.js - not found price ' + artikul);
-                //throw Error;
+                throw new Error('parser/findOffer.js - not found price ' + artikul);
             }   
 
             // res_price.push(price);

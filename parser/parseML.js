@@ -18,8 +18,7 @@ import { findOffer } from './findOffer.js';
 import { updateDB } from './updateDB.js';
 //import { findDB } from './findDB.js';
 import { prismaI } from '../utils/prisma.js';
-
-
+import { sendEmail } from '../utils/email_send.js';
 
 
 /**
@@ -48,14 +47,11 @@ async function moveUpload(oldPath) {
  * находим папку с картинками (import_files) и копируем ее в корень проекта в папку product_images
  * @function
  * @param {string} oldPath - путь/имя текущей папки
- * @param {string} newPath - путь/имя текущей папки
- * @return {string | Error} возвращаем путь/имя новой папки или аварийно завершаем процесс
+ * @return {string | undefined} возвращаем путь/имя новой папки или undefined
  */
 async function copyImages(oldPath) {
     logger.info('parser/parseML.js - copyImages ' + 'begin ' + oldPath);
     console.log('parser/parseML.js - copyImages ' + 'begin ' + oldPath);
-    //const result = formatISO(Date.now(), { representation: 'complete' }).replaceAll(':', '-');
-    //const newFolderName = oldPath + '_' + result;
     try {
         await fs.cp(oldPath, 'product_images', { recursive: true });
         logger.info('parser/parseML.js - copyImages ' + 'end ' + oldPath + ' to folder: ' + 'product_images');
@@ -63,8 +59,7 @@ async function copyImages(oldPath) {
     } catch (error) {
         logger.error('parser/parseML.js - copyImages ' + error.stack);
         console.log('parser/parseML.js - copyImages ' + error.stack);
-        //throw Error;
-        //return undefined;
+        return undefined;
     }
 }
 
@@ -221,8 +216,18 @@ async function main(user_id) {
         return;
     }
     await prismaI.$transaction(async (tx) => {
-        await parseImport(tx, newFolder, newFolder + '/import0_1.xml', user_id);
-        await parseOffers(tx, newFolder, newFolder + '/offers0_1.xml', user_id);
+        try {
+            await parseImport(tx, newFolder, newFolder + '/import0_1.xml', user_id);
+            await parseOffers(tx, newFolder, newFolder + '/offers0_1.xml', user_id);              
+        } catch (error) {
+            await sendEmail({
+                text: error.stack,
+                from: process.env.EMAIL_LOGIN,
+                to: process.env.EMAIL_ADMIN,
+                subject: 'cipo-site-server error',
+            });
+            console.log('parseML - main error ' + error.stack);
+        }
     }, 
     {
         maxWait: 6000, // default: 2000
@@ -231,6 +236,8 @@ async function main(user_id) {
     await prismaI.$disconnect();
     await copyImages(newFolder + '/import_files');
 
+
+    console.log('======== end');
     logger.info('parser/parseML.js - main ' + 'end ');
     return;
 }
