@@ -267,7 +267,7 @@ model qnt_registry { // регистр остатков
 }
 
 model qnt_price_registry {
-    id Int @id @default(autoincrement())
+    id BigInt @id @default(autoincrement())
     sum Float
     qnt Float
     size_name_1c String
